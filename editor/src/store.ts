@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Project } from '@storyforge/shared'
+import type { Project, Section, SubChapter } from '@storyforge/shared'
 import { getProject, listProjects, saveProject, type ProjectSummary } from './api'
 
 export type ViewId = 'script' | 'assets'
@@ -14,6 +14,8 @@ interface EditorState {
   refreshProjects: () => Promise<ProjectSummary[]>
   loadProject: (id: string) => Promise<void>
   saveCurrent: () => Promise<void>
+  updateSubChapter: (id: string, patch: Partial<SubChapter>) => void
+  updateSection: (id: string, patch: Partial<Section>) => void
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -55,5 +57,36 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     } catch (e) {
       set({ saving: false, error: (e as Error).message })
     }
+  },
+
+  updateSubChapter: (id, patch) => {
+    const project = get().project
+    if (!project) return
+    set({
+      project: {
+        ...project,
+        chapters: project.chapters.map((c) => ({
+          ...c,
+          subChapters: c.subChapters.map((sc) => (sc.id === id ? { ...sc, ...patch } : sc)),
+        })),
+      },
+    })
+  },
+
+  updateSection: (id, patch) => {
+    const project = get().project
+    if (!project) return
+    set({
+      project: {
+        ...project,
+        chapters: project.chapters.map((c) => ({
+          ...c,
+          subChapters: c.subChapters.map((sc) => ({
+            ...sc,
+            sections: sc.sections.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+          })),
+        })),
+      },
+    })
   },
 }))

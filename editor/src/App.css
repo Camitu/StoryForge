@@ -201,18 +201,102 @@ body {
   margin-left: 20px;
 }
 
-/* 时间线侧栏 */
-.timeline-panel {
-  width: 240px;
+/* 右侧详情面板（子章节 / 小节编辑 / 时间线） */
+.detail-panel {
+  width: 380px;
   flex-shrink: 0;
   border-left: 1px solid #2a2f3a;
   padding-left: 20px;
 }
 
-.timeline-panel h3 {
+.detail-panel h3 {
   margin: 0 0 12px;
   font-size: 14px;
   color: #8b93a1;
+}
+
+.node-row.subchapter.selected {
+  background: #2b3a55;
+  color: #fff;
+}
+
+/* 子章节面板 */
+.subchapter-panel h2,
+.section-editor h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.sections-title {
+  margin: 16px 0 8px;
+}
+
+.section-row {
+  padding: 8px 10px;
+  border: 1px solid #2a2f3a;
+  border-radius: 6px;
+  margin: 6px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-row:hover {
+  background: #1a1e26;
+}
+
+.section-row-name {
+  flex: 1;
+  font-size: 14px;
+}
+
+.section-row-meta {
+  font-size: 11px;
+  color: #8b93a1;
+}
+
+/* 小节编辑器 */
+.section-editor .row {
+  display: flex;
+  gap: 12px;
+}
+
+.section-editor .col {
+  flex: 1;
+}
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  color: #8b93a1;
+  margin: 12px 0 4px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #0d0f13;
+  border: 1px solid #2a2f3a;
+  border-radius: 6px;
+  color: #e6e8eb;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.title-input {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.section-save {
+  margin-top: 16px;
 }
 
 .timeline-item {

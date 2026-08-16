@@ -1,17 +1,13 @@
 import { useState } from 'react'
-import type { Project } from '@storyforge/shared'
-
-interface TimelineItem {
-  id: string
-  chapter: string
-  subChapter: string
-  section: string
-  time: string
-}
+import type { Project, SubChapter } from '@storyforge/shared'
+import { useEditorStore } from '../store'
+import { SectionEditor } from './SectionEditor'
 
 export function ScriptView({ project }: { project: Project }) {
-  // 默认展开所有大章节
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(project.chapterOrder))
+  const [selectedSubId, setSelectedSubId] = useState<string | null>(null)
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null)
+  const { updateSubChapter } = useEditorStore()
 
   const toggle = (id: string) => {
     setExpanded((prev) => {
@@ -22,22 +18,36 @@ export function ScriptView({ project }: { project: Project }) {
     })
   }
 
-  // 时间线：按顺序展平所有小节
-  const timeline: TimelineItem[] = []
+  const selectedSub = selectedSubId
+    ? project.chapters.flatMap((c) => c.subChapters).find((sc) => sc.id === selectedSubId) ?? null
+    : null
+
+  const selectedSection = selectedSectionId
+    ? project.chapters
+        .flatMap((c) => c.subChapters)
+        .flatMap((sc) => sc.sections)
+        .find((s) => s.id === selectedSectionId) ?? null
+    : null
+
+  // 时间线
+  const timeline: { id: string; chapter: string; subChapter: string; section: string; time: string }[] = []
   for (const cid of project.chapterOrder) {
     const chapter = project.chapters.find((c) => c.id === cid)
     if (!chapter) continue
     for (const sub of chapter.subChapters) {
       for (const section of sub.sections) {
-        timeline.push({
-          id: section.id,
-          chapter: chapter.name,
-          subChapter: sub.name,
-          section: section.name,
-          time: section.time,
-        })
+        timeline.push({ id: section.id, chapter: chapter.name, subChapter: sub.name, section: section.name, time: section.time })
       }
     }
+  }
+
+  const selectSub = (id: string) => {
+    setSelectedSubId(id)
+    setSelectedSectionId(null)
+  }
+
+  const selectSection = (id: string) => {
+    setSelectedSectionId(id)
   }
 
   return (
@@ -56,44 +66,79 @@ export function ScriptView({ project }: { project: Project }) {
                 <span className="node-meta">{chapter.subChapters.length} 子章节</span>
               </div>
               {open &&
-                chapter.subChapters.map((sub) => {
-                  const subOpen = expanded.has(sub.id)
-                  return (
-                    <div key={sub.id} className="subchapter-node">
-                      <div className="node-row subchapter" onClick={() => toggle(sub.id)}>
-                        <span className="caret">{subOpen ? '▾' : '▸'}</span>
-                        <span className="node-name">{sub.name}</span>
-                        <span className="node-meta">{sub.sections.length} 小节</span>
-                      </div>
-                      {subOpen &&
-                        sub.sections.map((section) => (
-                          <div key={section.id} className="node-row section">
-                            <span className="node-name">{section.name}</span>
-                            <span className="node-meta">
-                              {section.time} · {section.beats.length} beat
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  )
-                })}
+                chapter.subChapters.map((sub) => (
+                  <div
+                    key={sub.id}
+                    className={`node-row subchapter ${sub.id === selectedSubId ? 'selected' : ''}`}
+                    onClick={() => selectSub(sub.id)}
+                  >
+                    <span className="node-name">{sub.name}</span>
+                    <span className="node-meta">{sub.sections.length} 小节</span>
+                  </div>
+                ))}
             </div>
           )
         })}
       </div>
 
-      <aside className="timeline-panel">
-        <h3>时间线</h3>
-        {timeline.map((t) => (
-          <div key={t.id} className="timeline-item">
-            <div className="tl-time">{t.time}</div>
-            <div className="tl-name">{t.section}</div>
-            <div className="tl-path">
-              {t.chapter} / {t.subChapter}
-            </div>
-          </div>
-        ))}
+      <aside className="detail-panel">
+        {selectedSection ? (
+          <SectionEditor section={selectedSection} />
+        ) : selectedSub ? (
+          <SubChapterPanel sub={selectedSub} onSelectSection={selectSection} onUpdate={updateSubChapter} />
+        ) : (
+          <>
+            <h3>时间线</h3>
+            {timeline.map((t) => (
+              <div key={t.id} className="timeline-item">
+                <div className="tl-time">{t.time}</div>
+                <div className="tl-name">{t.section}</div>
+                <div className="tl-path">
+                  {t.chapter} / {t.subChapter}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </aside>
+    </div>
+  )
+}
+
+function SubChapterPanel({
+  sub,
+  onSelectSection,
+  onUpdate,
+}: {
+  sub: SubChapter
+  onSelectSection: (id: string) => void
+  onUpdate: (id: string, patch: Partial<SubChapter>) => void
+}) {
+  return (
+    <div className="subchapter-panel">
+      <h2>子章节</h2>
+      <input
+        className="input title-input"
+        value={sub.name}
+        onChange={(e) => onUpdate(sub.id, { name: e.target.value })}
+      />
+      <label className="field-label">概要</label>
+      <textarea
+        className="textarea"
+        rows={3}
+        value={sub.summary ?? ''}
+        placeholder="子章节概要…"
+        onChange={(e) => onUpdate(sub.id, { summary: e.target.value })}
+      />
+      <h3 className="sections-title">小节（{sub.sections.length}）</h3>
+      {sub.sections.map((section) => (
+        <div key={section.id} className="section-row" onClick={() => onSelectSection(section.id)}>
+          <span className="section-row-name">{section.name}</span>
+          <span className="section-row-meta">
+            {section.time} · {section.beats.length} beat
+          </span>
+        </div>
+      ))}
     </div>
   )
 }
