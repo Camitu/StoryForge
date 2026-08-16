@@ -4,7 +4,7 @@ import { ScriptView } from './components/ScriptView'
 import { AssetView } from './components/AssetView'
 
 export default function App() {
-  const { projects, project, view, saving, error, setView, refreshProjects, loadProject, saveCurrent } =
+  const { projects, project, view, saving, error, setView, refreshProjects, loadProject, saveCurrent, createProject } =
     useEditorStore()
   const [selectedId, setSelectedId] = useState('')
 
@@ -16,6 +16,13 @@ export default function App() {
       }
     })
   }, [refreshProjects, loadProject])
+
+  const onCreateProject = async () => {
+    const name = window.prompt('工程名称')
+    if (!name) return
+    const p = await createProject(name)
+    if (p) setSelectedId(p.id)
+  }
 
   return (
     <div className="app">
@@ -45,6 +52,9 @@ export default function App() {
             </li>
           ))}
         </ul>
+        <button className="new-btn" onClick={onCreateProject}>
+          ＋ 新建项目
+        </button>
         {project && (
           <button className="save-btn" onClick={saveCurrent} disabled={saving}>
             {saving ? '保存中…' : '保存'}

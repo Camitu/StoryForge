@@ -7,7 +7,7 @@ export function ScriptView({ project }: { project: Project }) {
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(project.chapterOrder))
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null)
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null)
-  const { updateSubChapter } = useEditorStore()
+  const { updateSubChapter, addChapter, addSubChapter, addSection } = useEditorStore()
 
   const toggle = (id: string) => {
     setExpanded((prev) => {
@@ -54,6 +54,15 @@ export function ScriptView({ project }: { project: Project }) {
     <div className="script-view">
       <div className="tree-panel">
         <h1>脚本总览</h1>
+        <button
+          className="add-btn add-chapter"
+          onClick={() => {
+            const name = window.prompt('大章节名', '新章节')
+            if (name) addChapter(name)
+          }}
+        >
+          ＋ 大章节
+        </button>
         {project.chapterOrder.map((cid) => {
           const chapter = project.chapters.find((c) => c.id === cid)
           if (!chapter) return null
@@ -64,6 +73,17 @@ export function ScriptView({ project }: { project: Project }) {
                 <span className="caret">{open ? '▾' : '▸'}</span>
                 <span className="node-name">{chapter.name}</span>
                 <span className="node-meta">{chapter.subChapters.length} 子章节</span>
+                <button
+                  className="add-btn"
+                  title="新建子章节"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const name = window.prompt('子章节名', '新子章节')
+                    if (name) addSubChapter(chapter.id, name)
+                  }}
+                >
+                  ＋
+                </button>
               </div>
               {open &&
                 chapter.subChapters.map((sub) => (
@@ -85,7 +105,12 @@ export function ScriptView({ project }: { project: Project }) {
         {selectedSection ? (
           <SectionEditor section={selectedSection} />
         ) : selectedSub ? (
-          <SubChapterPanel sub={selectedSub} onSelectSection={selectSection} onUpdate={updateSubChapter} />
+          <SubChapterPanel
+            sub={selectedSub}
+            onSelectSection={selectSection}
+            onUpdate={updateSubChapter}
+            onAddSection={addSection}
+          />
         ) : (
           <>
             <h3>时间线</h3>
@@ -109,10 +134,12 @@ function SubChapterPanel({
   sub,
   onSelectSection,
   onUpdate,
+  onAddSection,
 }: {
   sub: SubChapter
   onSelectSection: (id: string) => void
   onUpdate: (id: string, patch: Partial<SubChapter>) => void
+  onAddSection: (subChapterId: string, name: string) => void
 }) {
   return (
     <div className="subchapter-panel">
@@ -131,6 +158,15 @@ function SubChapterPanel({
         onChange={(e) => onUpdate(sub.id, { summary: e.target.value })}
       />
       <h3 className="sections-title">小节（{sub.sections.length}）</h3>
+      <button
+        className="add-btn"
+        onClick={() => {
+          const name = window.prompt('小节名', '新小节')
+          if (name) onAddSection(sub.id, name)
+        }}
+      >
+        ＋ 小节
+      </button>
       {sub.sections.map((section) => (
         <div key={section.id} className="section-row" onClick={() => onSelectSection(section.id)}>
           <span className="section-row-name">{section.name}</span>

@@ -27,6 +27,16 @@ export async function getProject(id: string): Promise<Project> {
   return res.json()
 }
 
+export async function createProject(name: string): Promise<Project> {
+  const res = await fetch(`${API_BASE}/api/projects`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  })
+  if (!res.ok) throw new Error(`创建工程失败: ${res.status}`)
+  return res.json()
+}
+
 export async function saveProject(project: Project): Promise<Project> {
   const res = await fetch(`${API_BASE}/api/projects/${project.id}`, {
     method: 'PUT',

@@ -111,6 +111,39 @@ body {
   cursor: default;
 }
 
+.new-btn {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px dashed #2a2f3a;
+  border-radius: 6px;
+  background: transparent;
+  color: #5ea0ff;
+  cursor: pointer;
+}
+
+.new-btn:hover {
+  background: #1d212a;
+}
+
+.add-btn {
+  padding: 3px 8px;
+  border: 1px solid #2a2f3a;
+  border-radius: 6px;
+  background: transparent;
+  color: #5ea0ff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.add-btn:hover {
+  background: #1d212a;
+}
+
+.add-chapter {
+  margin-bottom: 12px;
+}
+
 .error {
   color: #ff7b7b;
   font-size: 12px;
