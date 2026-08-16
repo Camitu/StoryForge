@@ -1,0 +1,77 @@
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f1115;
+  color: #e6e8eb;
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.app-header h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+
+.app-header .meta {
+  margin: 0 0 24px;
+  color: #8b93a1;
+  font-size: 13px;
+}
+
+.chapter {
+  margin-bottom: 28px;
+}
+
+.chapter h2 {
+  border-bottom: 1px solid #2a2f3a;
+  padding-bottom: 8px;
+}
+
+.chapter-summary {
+  color: #8b93a1;
+  font-size: 14px;
+}
+
+.section {
+  background: #171a21;
+  border: 1px solid #2a2f3a;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 12px 0;
+}
+
+.section h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.section .time {
+  color: #5ea0ff;
+  font-weight: normal;
+  font-size: 13px;
+}
+
+.section .summary {
+  color: #b7bdc7;
+  font-size: 14px;
+  margin: 0 0 10px;
+}
+
+.beats {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: #cdd2da;
+}
+
+.beats li {
+  margin: 4px 0;
+}
