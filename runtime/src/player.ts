@@ -104,11 +104,21 @@ export class Player {
     }
   }
 
+  private async loadTexture(assetPath: string) {
+    try {
+      return await Assets.load(mediaUrl(assetPath))
+    } catch (e) {
+      console.error('素材加载失败:', assetPath, e)
+      return null
+    }
+  }
+
   private async setScene(sceneId: string): Promise<void> {
     const scene = this.sceneById.get(sceneId)
     const layer = scene?.layers[0]
     if (!layer) return
-    const texture = await Assets.load(mediaUrl(layer.assetPath))
+    const texture = await this.loadTexture(layer.assetPath)
+    if (!texture) return
     if (this.bgSprite) this.stage.removeChild(this.bgSprite)
     const bg = new Sprite(texture)
     fitCover(bg, this.app.screen.width, this.app.screen.height)
@@ -120,7 +130,8 @@ export class Player {
     if (!char) return
     const exp = char.expressions.find((e) => e.name === expression) ?? char.expressions[0]
     if (!exp) return
-    const texture = await Assets.load(mediaUrl(exp.assetPath))
+    const texture = await this.loadTexture(exp.assetPath)
+    if (!texture) return
     if (this.charSprite) this.stage.removeChild(this.charSprite)
     const sprite = new Sprite(texture)
     fitCharacter(sprite, this.app.screen.width, this.app.screen.height)

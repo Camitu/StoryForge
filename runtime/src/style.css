@@ -25,3 +25,13 @@ body {
 .hint {
   font-size: 13px;
 }
+
+.error {
+  color: #ff7b7b;
+  font-size: 13px;
+  max-width: 720px;
+  text-align: center;
+  padding: 8px 16px;
+  background: rgba(255, 60, 60, 0.12);
+  border-radius: 6px;
+}
