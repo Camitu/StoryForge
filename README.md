@@ -53,6 +53,35 @@ StoryForge/
 └── runtime/    # Pixi.js 7（Galgame 运行时 / 播放器）
 ```
 
+## 快速开始
+
+### 服务端（AI 协作 API，端口 8790）
+
+```bash
+cd server
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+.venv\Scripts\python -m uvicorn app.main:app --port 8790
+# 冒烟测试
+.venv\Scripts\python smoke_test.py
+```
+
+### 编辑器
+
+```bash
+cd editor
+npm install
+npm run dev
+```
+
+### 播放器
+
+```bash
+cd runtime
+npm install
+npm run dev
+```
+
 ## 路线图
 
 - **P0（纵向切片）**：结构化 beat 模型 + 章节/时间线/人物/伏笔 + 锚点 + 浓缩 + 本地 AI API + 最简对话播放器。
