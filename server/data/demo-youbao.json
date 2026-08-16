@@ -2,8 +2,13 @@
   "id": "demo-youbao",
   "name": "悠宝的日常（Demo）",
   "version": "0.1.0",
-  "resolution": { "width": 1920, "height": 1080 },
-  "chapterOrder": ["ch-01"],
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "chapterOrder": [
+    "ch-01"
+  ],
   "chapters": [
     {
       "id": "ch-01",
@@ -20,19 +25,82 @@
               "name": "客厅的午后",
               "time": "午后",
               "summary": "三人在客厅闲聊，决定一起出去玩。",
-              "tags": ["日常"],
               "foreshadows": [],
               "anchors": [],
+              "tags": [
+                "日常"
+              ],
               "beats": [
-                { "id": "b01", "kind": "scene", "time": "午后", "sceneId": "scn-livingroom", "transition": "fade", "durationMs": 800 },
-                { "id": "b02", "kind": "dialogue", "time": "午后", "characterId": "char-youbao", "expression": "正面站立", "text": "这里就是我们的客厅啦。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-                { "id": "b03", "kind": "dialogue", "time": "午后", "characterId": "char-muxue", "expression": "默认", "text": "今天天气真不错呢。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-                { "id": "b04", "kind": "dialogue", "time": "午后", "characterId": "char-muxue", "expression": "调皮坏笑", "text": "我们出去玩吧！", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-                { "id": "b05", "kind": "dialogue", "time": "午后", "characterId": "char-muxing", "expression": "灿烂微笑", "text": "好呀好呀，走吧！", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-                { "id": "b06", "kind": "dialogue", "time": "午后", "characterId": "char-youbao", "expression": "含蓄合拢", "text": "那……一起出发吧。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-                { "id": "b07", "kind": "scene", "time": "夜晚", "sceneId": "scn-livingroom-night", "transition": "fade", "durationMs": 800 },
-                { "id": "b08", "kind": "narration", "time": "夜晚", "text": "夜幕降临，三人回到了家。", "sceneId": null },
-                { "id": "b09", "kind": "dialogue", "time": "夜晚", "characterId": "char-muxue", "expression": "脸红慌张", "text": "今天玩得……真开心。", "sprite": null, "avatar": null, "sceneId": null, "cg": null }
+                {
+                  "id": "b01",
+                  "kind": "scene",
+                  "time": "午后",
+                  "sceneId": "scn-livingroom",
+                  "transition": "fade",
+                  "durationMs": 800
+                },
+                {
+                  "id": "b02",
+                  "kind": "dialogue",
+                  "time": "午后",
+                  "characterId": "char-youbao",
+                  "expression": "正面站立",
+                  "text": "这里就是我们的客厅啦。"
+                },
+                {
+                  "id": "b03",
+                  "kind": "dialogue",
+                  "time": "午后",
+                  "characterId": "char-muxue",
+                  "expression": "默认",
+                  "text": "今天天气真不错呢。"
+                },
+                {
+                  "id": "b04",
+                  "kind": "dialogue",
+                  "time": "午后",
+                  "characterId": "char-muxue",
+                  "expression": "调皮坏笑",
+                  "text": "我们出去玩吧！"
+                },
+                {
+                  "id": "b05",
+                  "kind": "dialogue",
+                  "time": "午后",
+                  "characterId": "char-muxing",
+                  "expression": "灿烂微笑",
+                  "text": "好呀好呀，走吧！"
+                },
+                {
+                  "id": "b06",
+                  "kind": "dialogue",
+                  "time": "午后",
+                  "characterId": "char-youbao",
+                  "expression": "含蓄合拢",
+                  "text": "那……一起出发吧。"
+                },
+                {
+                  "id": "b07",
+                  "kind": "scene",
+                  "time": "夜晚",
+                  "sceneId": "scn-livingroom-night",
+                  "transition": "fade",
+                  "durationMs": 800
+                },
+                {
+                  "id": "b08",
+                  "kind": "narration",
+                  "time": "夜晚",
+                  "text": "夜幕降临，三人回到了家。"
+                },
+                {
+                  "id": "b09",
+                  "kind": "dialogue",
+                  "time": "夜晚",
+                  "characterId": "char-muxue",
+                  "expression": "脸红慌张",
+                  "text": "今天玩得……真开心。"
+                }
               ]
             }
           ]
@@ -46,8 +114,14 @@
       "name": "悠宝",
       "note": "主角",
       "expressions": [
-        { "name": "正面站立", "assetPath": "sprites/悠宝/立绘基本/悠宝 T恤长裤 正面站立.png" },
-        { "name": "含蓄合拢", "assetPath": "sprites/悠宝/立绘基本/悠宝 T恤长裤 双手含蓄合拢.png" }
+        {
+          "name": "正面站立",
+          "assetPath": "sprites/悠宝/立绘基本/悠宝 T恤长裤 正面站立.png"
+        },
+        {
+          "name": "含蓄合拢",
+          "assetPath": "sprites/悠宝/立绘基本/悠宝 T恤长裤 双手含蓄合拢.png"
+        }
       ],
       "attributeValues": {}
     },
@@ -56,10 +130,22 @@
       "name": "沐雪",
       "note": "白T恤短裙",
       "expressions": [
-        { "name": "默认", "assetPath": "sprites/沐雪/沐雪 白T恤短裙掀裙角/立绘/001_默认闭眼无表情.png" },
-        { "name": "调皮坏笑", "assetPath": "sprites/沐雪/沐雪 白T恤短裙掀裙角/立绘/002_调皮坏笑.png" },
-        { "name": "脸红慌张", "assetPath": "sprites/沐雪/沐雪 白T恤短裙掀裙角/立绘/004_脸红慌张.png" },
-        { "name": "惊讶", "assetPath": "sprites/沐雪/沐雪 白T恤短裙掀裙角/立绘/010_惊讶被抓.png" }
+        {
+          "name": "默认",
+          "assetPath": "sprites/沐雪/沐雪 白T恤短裙掀裙角/立绘/001_默认闭眼无表情.png"
+        },
+        {
+          "name": "调皮坏笑",
+          "assetPath": "sprites/沐雪/沐雪 白T恤短裙掀裙角/立绘/002_调皮坏笑.png"
+        },
+        {
+          "name": "脸红慌张",
+          "assetPath": "sprites/沐雪/沐雪 白T恤短裙掀裙角/立绘/004_脸红慌张.png"
+        },
+        {
+          "name": "惊讶",
+          "assetPath": "sprites/沐雪/沐雪 白T恤短裙掀裙角/立绘/010_惊讶被抓.png"
+        }
       ],
       "attributeValues": {}
     },
@@ -68,9 +154,18 @@
       "name": "沐星",
       "note": "蝴蝶结白衬衫蓝短裙",
       "expressions": [
-        { "name": "默认", "assetPath": "sprites/沐星/沐星 蝴蝶结白色衬衫蓝色短裙 眼角比V/立绘/001_默认闭眼无表情.png" },
-        { "name": "灿烂微笑", "assetPath": "sprites/沐星/沐星 蝴蝶结白色衬衫蓝色短裙 眼角比V/立绘/002_灿烂微笑.png" },
-        { "name": "惊讶", "assetPath": "sprites/沐星/沐星 蝴蝶结白色衬衫蓝色短裙 眼角比V/立绘/009_惊讶吃惊.png" }
+        {
+          "name": "默认",
+          "assetPath": "sprites/沐星/沐星 蝴蝶结白色衬衫蓝色短裙 眼角比V/立绘/001_默认闭眼无表情.png"
+        },
+        {
+          "name": "灿烂微笑",
+          "assetPath": "sprites/沐星/沐星 蝴蝶结白色衬衫蓝色短裙 眼角比V/立绘/002_灿烂微笑.png"
+        },
+        {
+          "name": "惊讶",
+          "assetPath": "sprites/沐星/沐星 蝴蝶结白色衬衫蓝色短裙 眼角比V/立绘/009_惊讶吃惊.png"
+        }
       ],
       "attributeValues": {}
     }
@@ -80,14 +175,24 @@
       "id": "scn-livingroom",
       "name": "客厅（白天）",
       "layers": [
-        { "id": "lyr01", "name": "客厅01", "assetPath": "backgrounds/客厅01.png", "distance": 1 }
+        {
+          "id": "lyr01",
+          "name": "客厅01",
+          "assetPath": "backgrounds/客厅01.png",
+          "distance": 1.0
+        }
       ]
     },
     {
       "id": "scn-livingroom-night",
       "name": "客厅（夜晚）",
       "layers": [
-        { "id": "lyr02", "name": "客厅02", "assetPath": "backgrounds/客厅02.png", "distance": 1 }
+        {
+          "id": "lyr02",
+          "name": "客厅02",
+          "assetPath": "backgrounds/客厅02.png",
+          "distance": 1.0
+        }
       ]
     }
   ],

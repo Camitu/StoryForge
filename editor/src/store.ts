@@ -2,11 +2,15 @@ import { create } from 'zustand'
 import type { Project } from '@storyforge/shared'
 import { getProject, listProjects, saveProject, type ProjectSummary } from './api'
 
+export type ViewId = 'script' | 'assets'
+
 interface EditorState {
   projects: ProjectSummary[]
   project: Project | null
+  view: ViewId
   saving: boolean
   error: string | null
+  setView: (v: ViewId) => void
   refreshProjects: () => Promise<ProjectSummary[]>
   loadProject: (id: string) => Promise<void>
   saveCurrent: () => Promise<void>
@@ -15,8 +19,11 @@ interface EditorState {
 export const useEditorStore = create<EditorState>((set, get) => ({
   projects: [],
   project: null,
+  view: 'script',
   saving: false,
   error: null,
+
+  setView: (view) => set({ view }),
 
   refreshProjects: async () => {
     try {

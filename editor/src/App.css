@@ -21,18 +21,61 @@ body {
   background: #14171e;
   border-right: 1px solid #2a2f3a;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar h2 {
   margin: 0 0 12px;
-  font-size: 15px;
+  font-size: 17px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav button {
+  padding: 9px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #cdd2da;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.nav button:hover {
+  background: #1d212a;
+}
+
+.nav button.active {
+  background: #2b3a55;
+  color: #fff;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #2a2f3a;
+  margin: 14px 0;
+}
+
+.sidebar-title {
+  margin: 0 0 10px;
+  font-size: 12px;
   color: #8b93a1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .project-list {
   list-style: none;
   margin: 0 0 16px;
   padding: 0;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .project-list li {
@@ -79,22 +122,129 @@ body {
 .content {
   flex: 1;
   padding: 24px 32px;
-  max-width: 1100px;
+  min-width: 0;
 }
 
-.app-header h1 {
-  margin: 0 0 4px;
-  font-size: 24px;
-}
-
-.app-header .meta {
-  margin: 0 0 24px;
+.loading {
   color: #8b93a1;
-  font-size: 13px;
 }
 
-section h3 {
-  margin: 28px 0 12px;
+/* 脚本总览：树 + 时间线侧栏 */
+.script-view {
+  display: flex;
+  gap: 24px;
+}
+
+.tree-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.tree-panel h1 {
+  font-size: 22px;
+  margin: 0 0 16px;
+}
+
+.node-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.node-row:hover {
+  background: #1a1e26;
+}
+
+.node-row.chapter {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.node-row.subchapter {
+  font-size: 14px;
+}
+
+.node-row.section {
+  font-size: 13px;
+  color: #b7bdc7;
+  cursor: default;
+}
+
+.node-row.section:hover {
+  background: #171a21;
+}
+
+.caret {
+  width: 14px;
+  color: #8b93a1;
+  font-size: 11px;
+}
+
+.node-name {
+  flex: 1;
+}
+
+.node-meta {
+  font-size: 11px;
+  color: #8b93a1;
+}
+
+.subchapter-node {
+  margin-left: 20px;
+}
+
+.subchapter-node .node-row.section {
+  margin-left: 20px;
+}
+
+/* 时间线侧栏 */
+.timeline-panel {
+  width: 240px;
+  flex-shrink: 0;
+  border-left: 1px solid #2a2f3a;
+  padding-left: 20px;
+}
+
+.timeline-panel h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #8b93a1;
+}
+
+.timeline-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #1d212a;
+}
+
+.tl-time {
+  font-size: 12px;
+  color: #5ea0ff;
+}
+
+.tl-name {
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.tl-path {
+  font-size: 11px;
+  color: #8b93a1;
+  margin-top: 2px;
+}
+
+/* 资产库 */
+.asset-view h1 {
+  font-size: 22px;
+  margin: 0 0 16px;
+}
+
+.asset-view section h2 {
+  margin: 24px 0 12px;
+  font-size: 16px;
   border-bottom: 1px solid #2a2f3a;
   padding-bottom: 8px;
 }
@@ -146,42 +296,4 @@ section h3 {
   height: 140px;
   object-fit: cover;
   border-radius: 4px;
-}
-
-.chapter {
-  margin-bottom: 20px;
-}
-
-.chapter h4 {
-  margin: 0 0 8px;
-}
-
-.section {
-  background: #171a21;
-  border: 1px solid #2a2f3a;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin: 10px 0;
-}
-
-.section h5 {
-  margin: 0 0 6px;
-  font-size: 15px;
-}
-
-.section .time {
-  color: #5ea0ff;
-  font-weight: normal;
-  font-size: 13px;
-}
-
-.beats {
-  margin: 0;
-  padding-left: 20px;
-  font-size: 14px;
-  color: #cdd2da;
-}
-
-.beats li {
-  margin: 4px 0;
 }
