@@ -1,0 +1,12 @@
+{
+  "name": "@storyforge/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "StoryForge 共享数据模型：beat 结构化脚本、人物/场景/伏笔/叙事状态等类型定义",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

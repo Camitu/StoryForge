@@ -1,0 +1,121 @@
+{
+  "id": "proj-demo-001",
+  "name": "雪夜的车站（P0 测试故事）",
+  "version": "0.1.0",
+  "resolution": { "width": 1920, "height": 1080 },
+  "chapterOrder": ["ch-001"],
+  "chapters": [
+    {
+      "id": "ch-001",
+      "name": "序章",
+      "summary": "主角在雪夜车站与久别的少女重逢，埋下「不告而别」的伏笔。",
+      "sections": [
+        {
+          "id": "sec-001",
+          "name": "7月8日 傍晚",
+          "time": "7月8日 傍晚",
+          "summary": "主角在车站等末班车，偶遇即将去东京读书的少女。",
+          "tags": ["重逢", "伏笔"],
+          "foreshadows": [
+            {
+              "id": "fs-001",
+              "content": "少女「明年要去东京读书」，暗示当年的不告而别另有隐情。",
+              "plantedAt": { "chapterId": "ch-001", "sectionId": "sec-001" },
+              "resolvedAt": null,
+              "status": "open",
+              "tags": ["不告而别"]
+            }
+          ],
+          "anchors": [
+            {
+              "id": "anc-001",
+              "beatId": "beat-002",
+              "kind": "dialogue",
+              "note": "关键台词，AI 不得修改"
+            }
+          ],
+          "beats": [
+            {
+              "kind": "scene",
+              "time": "7月8日 傍晚",
+              "sceneId": "scn-001",
+              "transition": "fade",
+              "durationMs": 800
+            },
+            {
+              "kind": "bgm",
+              "time": "7月8日 傍晚",
+              "op": "play",
+              "uri": "bgm/snow-night.mp3",
+              "loop": true,
+              "volume": 40
+            },
+            {
+              "kind": "dialogue",
+              "time": "7月8日 傍晚",
+              "characterId": "char-002",
+              "expression": "平静",
+              "text": "明年开始，我就要去东京读书了。",
+              "sprite": "characters/shoujo/平静.png",
+              "avatar": null,
+              "sceneId": "scn-001",
+              "cg": null
+            },
+            {
+              "kind": "dialogue",
+              "time": "7月8日 傍晚",
+              "characterId": "char-001",
+              "expression": "惊讶",
+              "text": "现在才说这个有点晚了吧，不告而别的叛徒。",
+              "sprite": "characters/me/惊讶.png",
+              "avatar": null,
+              "sceneId": null,
+              "cg": null,
+              "anchorId": "anc-001"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "id": "char-001",
+      "name": "我",
+      "note": "主角。AI 绘画提示词：黑发少年，冬季大衣。",
+      "expressions": [
+        { "name": "平静", "assetPath": "characters/me/平静.png" },
+        { "name": "惊讶", "assetPath": "characters/me/惊讶.png" }
+      ],
+      "attributeValues": { "好感度": 0 }
+    },
+    {
+      "id": "char-002",
+      "name": "少女",
+      "note": "女主角。AI 绘画提示词：银发少女，围巾。",
+      "expressions": [
+        { "name": "平静", "assetPath": "characters/shoujo/平静.png" }
+      ],
+      "attributeValues": { "好感度": 0 }
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scn-001",
+      "name": "雪夜车站",
+      "layers": [
+        { "id": "lyr-001", "name": "天空", "assetPath": "backgrounds/station/sky.png", "distance": 8 },
+        { "id": "lyr-002", "name": "站台", "assetPath": "backgrounds/station/platform.png", "distance": 2 }
+      ]
+    }
+  ],
+  "variables": {},
+  "assets": [
+    {
+      "id": "ast-001",
+      "type": "background",
+      "path": "backgrounds/station/sky.png",
+      "ready": true
+    }
+  ]
+}
