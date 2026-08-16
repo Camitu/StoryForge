@@ -1,8 +1,22 @@
 import { create } from 'zustand'
-import type { Project, Section, SubChapter } from '@storyforge/shared'
+import type { Beat, Project, Section, SubChapter } from '@storyforge/shared'
 import { createProject, getProject, listProjects, saveProject, type ProjectSummary } from './api'
 
 export type ViewId = 'script' | 'assets'
+
+/** 对每个小节应用 fn，返回新 Project（用于深度不可变更新） */
+function mapSections(project: Project, fn: (s: Section) => Section): Project {
+  return {
+    ...project,
+    chapters: project.chapters.map((c) => ({
+      ...c,
+      subChapters: c.subChapters.map((sc) => ({
+        ...sc,
+        sections: sc.sections.map(fn),
+      })),
+    })),
+  }
+}
 
 interface EditorState {
   projects: ProjectSummary[]
@@ -14,12 +28,16 @@ interface EditorState {
   refreshProjects: () => Promise<ProjectSummary[]>
   loadProject: (id: string) => Promise<void>
   saveCurrent: () => Promise<void>
-  updateSubChapter: (id: string, patch: Partial<SubChapter>) => void
-  updateSection: (id: string, patch: Partial<Section>) => void
   createProject: (name: string) => Promise<Project | null>
   addChapter: (name: string) => void
   addSubChapter: (chapterId: string, name: string) => void
   addSection: (subChapterId: string, name: string) => void
+  updateSubChapter: (id: string, patch: Partial<SubChapter>) => void
+  updateSection: (id: string, patch: Partial<Section>) => void
+  addBeat: (sectionId: string, beat: Beat) => void
+  updateBeat: (sectionId: string, index: number, patch: Record<string, unknown>) => void
+  deleteBeat: (sectionId: string, index: number) => void
+  moveBeat: (sectionId: string, index: number, dir: -1 | 1) => void
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -61,37 +79,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     } catch (e) {
       set({ saving: false, error: (e as Error).message })
     }
-  },
-
-  updateSubChapter: (id, patch) => {
-    const project = get().project
-    if (!project) return
-    set({
-      project: {
-        ...project,
-        chapters: project.chapters.map((c) => ({
-          ...c,
-          subChapters: c.subChapters.map((sc) => (sc.id === id ? { ...sc, ...patch } : sc)),
-        })),
-      },
-    })
-  },
-
-  updateSection: (id, patch) => {
-    const project = get().project
-    if (!project) return
-    set({
-      project: {
-        ...project,
-        chapters: project.chapters.map((c) => ({
-          ...c,
-          subChapters: c.subChapters.map((sc) => ({
-            ...sc,
-            sections: sc.sections.map((s) => (s.id === id ? { ...s, ...patch } : s)),
-          })),
-        })),
-      },
-    })
   },
 
   createProject: async (name) => {
@@ -152,6 +139,67 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           ),
         })),
       },
+    })
+  },
+
+  updateSubChapter: (id, patch) => {
+    const project = get().project
+    if (!project) return
+    set({
+      project: {
+        ...project,
+        chapters: project.chapters.map((c) => ({
+          ...c,
+          subChapters: c.subChapters.map((sc) => (sc.id === id ? { ...sc, ...patch } : sc)),
+        })),
+      },
+    })
+  },
+
+  updateSection: (id, patch) => {
+    const project = get().project
+    if (!project) return
+    set({ project: mapSections(project, (s) => (s.id === id ? { ...s, ...patch } : s)) })
+  },
+
+  addBeat: (sectionId, beat) => {
+    const project = get().project
+    if (!project) return
+    set({ project: mapSections(project, (s) => (s.id === sectionId ? { ...s, beats: [...s.beats, beat] } : s)) })
+  },
+
+  updateBeat: (sectionId, index, patch) => {
+    const project = get().project
+    if (!project) return
+    set({
+      project: mapSections(project, (s) =>
+        s.id === sectionId ? { ...s, beats: s.beats.map((b, i) => (i === index ? ({ ...b, ...patch } as Beat) : b)) } : s,
+      ),
+    })
+  },
+
+  deleteBeat: (sectionId, index) => {
+    const project = get().project
+    if (!project) return
+    set({
+      project: mapSections(project, (s) =>
+        s.id === sectionId ? { ...s, beats: s.beats.filter((_, i) => i !== index) } : s,
+      ),
+    })
+  },
+
+  moveBeat: (sectionId, index, dir) => {
+    const project = get().project
+    if (!project) return
+    set({
+      project: mapSections(project, (s) => {
+        if (s.id !== sectionId) return s
+        const beats = [...s.beats]
+        const j = index + dir
+        if (j < 0 || j >= beats.length) return s
+        ;[beats[index], beats[j]] = [beats[j], beats[index]]
+        return { ...s, beats }
+      }),
     })
   },
 }))

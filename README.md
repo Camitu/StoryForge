@@ -90,3 +90,9 @@ npm run dev
 - **P3**：路线分支图、打包发布、UI 定制。
 
 > 完整方案见 [`docs/PLAN.md`](docs/PLAN.md)，或在 MemoVault 知识库中查看条目《AI-Galgame 实时开发生产引擎 — 最终方案》（id 63）。
+
+## 文档索引
+
+- [`docs/PLAN.md`](docs/PLAN.md) —— 最终方案（设计共识）
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) —— 技术架构 / 数据模型 / 数据流 / API
+- [`docs/PROGRESS.md`](docs/PROGRESS.md) —— 进度 / 待办 / 启动方式（**续接开发先读这个**）
