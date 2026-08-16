@@ -29,13 +29,14 @@
           "anchors": [
             {
               "id": "anc-001",
-              "beatId": "beat-002",
+              "beatId": "beat-004",
               "kind": "dialogue",
               "note": "关键台词，AI 不得修改"
             }
           ],
           "beats": [
             {
+              "id": "beat-001",
               "kind": "scene",
               "time": "7月8日 傍晚",
               "sceneId": "scn-001",
@@ -43,6 +44,7 @@
               "durationMs": 800
             },
             {
+              "id": "beat-002",
               "kind": "bgm",
               "time": "7月8日 傍晚",
               "op": "play",
@@ -51,6 +53,7 @@
               "volume": 40
             },
             {
+              "id": "beat-003",
               "kind": "dialogue",
               "time": "7月8日 傍晚",
               "characterId": "char-002",
@@ -62,6 +65,7 @@
               "cg": null
             },
             {
+              "id": "beat-004",
               "kind": "dialogue",
               "time": "7月8日 傍晚",
               "characterId": "char-001",

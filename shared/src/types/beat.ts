@@ -20,8 +20,14 @@ export type AssetRef = string | null;
 /** 表情名：空字符串 = 默认表情 */
 export type Expression = string;
 
+/** 所有 beat 共有的字段 */
+export interface BeatBase {
+  /** beat 唯一 ID（锚点 / 跳转 / 伏笔引用用） */
+  id?: EntityId;
+}
+
 /** 对白 Beat —— 最核心单元，对应填空式表格的一行 */
-export interface DialogueBeat {
+export interface DialogueBeat extends BeatBase {
   kind: 'dialogue';
   /** 时间标签 */
   time: StoryTime;
@@ -44,7 +50,7 @@ export interface DialogueBeat {
 }
 
 /** 旁白 Beat —— 无说话人 */
-export interface NarrationBeat {
+export interface NarrationBeat extends BeatBase {
   kind: 'narration';
   time: StoryTime;
   text: string;
@@ -52,7 +58,7 @@ export interface NarrationBeat {
 }
 
 /** 切场景 Beat */
-export interface SceneBeat {
+export interface SceneBeat extends BeatBase {
   kind: 'scene';
   time: StoryTime;
   sceneId: EntityId;
@@ -61,7 +67,7 @@ export interface SceneBeat {
 }
 
 /** 角色立绘/表情变化 Beat */
-export interface CharacterBeat {
+export interface CharacterBeat extends BeatBase {
   kind: 'character';
   time: StoryTime;
   characterId: EntityId;
@@ -72,7 +78,7 @@ export interface CharacterBeat {
 }
 
 /** 背景音乐 Beat */
-export interface BgmBeat {
+export interface BgmBeat extends BeatBase {
   kind: 'bgm';
   time: StoryTime;
   /** 播放或停止 */
@@ -85,7 +91,7 @@ export interface BgmBeat {
 }
 
 /** 音效 Beat */
-export interface SfxBeat {
+export interface SfxBeat extends BeatBase {
   kind: 'sfx';
   time: StoryTime;
   uri: string;
@@ -95,27 +101,28 @@ export interface SfxBeat {
 /** 分支选项 */
 export interface ChoiceOption {
   text: string;
-  /** 跳转目标（节 ID 或 beat ID） */
+  /** 跳转目标（节 ID） */
   target: EntityId;
   /** 入线条件（可选，剧情路线系统用） */
   condition?: string;
 }
 
 /** 分支选项 Beat */
-export interface ChoiceBeat {
+export interface ChoiceBeat extends BeatBase {
   kind: 'choice';
   time: StoryTime;
   options: ChoiceOption[];
 }
 
 /** 跳转 Beat */
-export interface JumpBeat {
+export interface JumpBeat extends BeatBase {
   kind: 'jump';
+  /** 跳转目标（节 ID） */
   target: EntityId;
 }
 
 /** 黑幕 Beat */
-export interface CurtainBeat {
+export interface CurtainBeat extends BeatBase {
   kind: 'curtain';
   op: 'open' | 'close';
   durationMs?: number;
@@ -123,7 +130,7 @@ export interface CurtainBeat {
 }
 
 /** 结束 Beat */
-export interface EndBeat {
+export interface EndBeat extends BeatBase {
   kind: 'end';
   /** 结局 ID（分支结局追踪用） */
   endingId?: EntityId;
