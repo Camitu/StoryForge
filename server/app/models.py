@@ -248,11 +248,18 @@ class Section(BaseModel):
     beats: List[Beat] = []
 
 
-class Chapter(BaseModel):
+class SubChapter(BaseModel):
     id: EntityId
     name: str
     summary: Optional[str] = None
     sections: List[Section] = []
+
+
+class Chapter(BaseModel):
+    id: EntityId
+    name: str
+    summary: Optional[str] = None
+    subChapters: List[SubChapter] = []
 
 
 class Project(BaseModel):

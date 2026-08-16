@@ -41,8 +41,9 @@ def _walk_sections(project: Project):
         chapter = chapter_map.get(cid)
         if chapter is None:
             continue
-        for section in chapter.sections:
-            yield chapter, section
+        for sub in chapter.subChapters:
+            for section in sub.sections:
+                yield chapter, section
 
 
 def compute_context(project: Project, at: Optional[str] = None) -> WorldState:
@@ -70,7 +71,7 @@ def check_project(project: Project) -> dict:
     char_ids = {c.id for c in project.characters}
     scene_ids = {s.id for s in project.scenes}
     chapter_ids = {c.id for c in project.chapters}
-    section_ids = {s.id for c in project.chapters for s in c.sections}
+    section_ids = {s.id for c in project.chapters for sc in c.subChapters for s in sc.sections}
     beat_ids = set()
     anchor_beat_ids = set()
 

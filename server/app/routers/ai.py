@@ -23,9 +23,10 @@ def _get_project(project_id: str) -> Project:
 
 def _find_section(project: Project, section_id: str):
     for chapter in project.chapters:
-        for section in chapter.sections:
-            if section.id == section_id:
-                return chapter, section
+        for sub in chapter.subChapters:
+            for section in sub.sections:
+                if section.id == section_id:
+                    return chapter, section
     raise HTTPException(404, f"小节不存在: {section_id}")
 
 

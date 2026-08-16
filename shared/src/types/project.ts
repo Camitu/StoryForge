@@ -1,8 +1,9 @@
 /**
  * 工程结构与章节管理。
- * 层级：Project → Chapter（章节）→ Section（小节，对应时间段）→ Beat。
+ * 层级：Project → Chapter（大章节，如「序章」）→ SubChapter（子章节，如「000 突如其来的夏日」）
+ *       → Section（小节，对应一个时间段）→ Beat。
  *
- * 章节管理是重点：卡片式/积木式，带接线条件，可前后拖动衔接；
+ * 章节管理是重点：大章节/子章节可展开折叠、卡片式/积木式拖动衔接；
  * 拖动后重设时间线即可（支持先写高潮再回填铺垫）。
  */
 import type { EntityId, StoryTime } from './ids';
@@ -42,13 +43,22 @@ export interface Section {
   beats: Beat[];
 }
 
-/** 章节（Chapter） */
+/** 子章节（SubChapter）—— 大章节下的一个标题单元，如「000 突如其来的夏日」 */
+export interface SubChapter {
+  id: EntityId;
+  name: string;
+  /** 子章节概要 */
+  summary?: string;
+  sections: Section[];
+}
+
+/** 大章节（Chapter）—— 如「序章」 */
 export interface Chapter {
   id: EntityId;
   name: string;
   /** 章节概要 */
   summary?: string;
-  sections: Section[];
+  subChapters: SubChapter[];
 }
 
 /** 工程（Project） */

@@ -9,25 +9,32 @@
       "id": "ch-01",
       "name": "序章",
       "summary": "悠宝、沐雪、沐星三人的客厅日常。",
-      "sections": [
+      "subChapters": [
         {
-          "id": "sec-01",
-          "name": "客厅的午后",
-          "time": "午后",
+          "id": "sub-01",
+          "name": "000 突如其来的夏日",
           "summary": "三人在客厅闲聊，决定一起出去玩。",
-          "tags": ["日常"],
-          "foreshadows": [],
-          "anchors": [],
-          "beats": [
-            { "id": "b01", "kind": "scene", "time": "午后", "sceneId": "scn-livingroom", "transition": "fade", "durationMs": 800 },
-            { "id": "b02", "kind": "dialogue", "time": "午后", "characterId": "char-youbao", "expression": "正面站立", "text": "这里就是我们的客厅啦。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-            { "id": "b03", "kind": "dialogue", "time": "午后", "characterId": "char-muxue", "expression": "默认", "text": "今天天气真不错呢。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-            { "id": "b04", "kind": "dialogue", "time": "午后", "characterId": "char-muxue", "expression": "调皮坏笑", "text": "我们出去玩吧！", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-            { "id": "b05", "kind": "dialogue", "time": "午后", "characterId": "char-muxing", "expression": "灿烂微笑", "text": "好呀好呀，走吧！", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-            { "id": "b06", "kind": "dialogue", "time": "午后", "characterId": "char-youbao", "expression": "含蓄合拢", "text": "那……一起出发吧。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
-            { "id": "b07", "kind": "scene", "time": "夜晚", "sceneId": "scn-livingroom-night", "transition": "fade", "durationMs": 800 },
-            { "id": "b08", "kind": "narration", "time": "夜晚", "text": "夜幕降临，三人回到了家。", "sceneId": null },
-            { "id": "b09", "kind": "dialogue", "time": "夜晚", "characterId": "char-muxue", "expression": "脸红慌张", "text": "今天玩得……真开心。", "sprite": null, "avatar": null, "sceneId": null, "cg": null }
+          "sections": [
+            {
+              "id": "sec-01",
+              "name": "客厅的午后",
+              "time": "午后",
+              "summary": "三人在客厅闲聊，决定一起出去玩。",
+              "tags": ["日常"],
+              "foreshadows": [],
+              "anchors": [],
+              "beats": [
+                { "id": "b01", "kind": "scene", "time": "午后", "sceneId": "scn-livingroom", "transition": "fade", "durationMs": 800 },
+                { "id": "b02", "kind": "dialogue", "time": "午后", "characterId": "char-youbao", "expression": "正面站立", "text": "这里就是我们的客厅啦。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
+                { "id": "b03", "kind": "dialogue", "time": "午后", "characterId": "char-muxue", "expression": "默认", "text": "今天天气真不错呢。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
+                { "id": "b04", "kind": "dialogue", "time": "午后", "characterId": "char-muxue", "expression": "调皮坏笑", "text": "我们出去玩吧！", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
+                { "id": "b05", "kind": "dialogue", "time": "午后", "characterId": "char-muxing", "expression": "灿烂微笑", "text": "好呀好呀，走吧！", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
+                { "id": "b06", "kind": "dialogue", "time": "午后", "characterId": "char-youbao", "expression": "含蓄合拢", "text": "那……一起出发吧。", "sprite": null, "avatar": null, "sceneId": null, "cg": null },
+                { "id": "b07", "kind": "scene", "time": "夜晚", "sceneId": "scn-livingroom-night", "transition": "fade", "durationMs": 800 },
+                { "id": "b08", "kind": "narration", "time": "夜晚", "text": "夜幕降临，三人回到了家。", "sceneId": null },
+                { "id": "b09", "kind": "dialogue", "time": "夜晚", "characterId": "char-muxue", "expression": "脸红慌张", "text": "今天玩得……真开心。", "sprite": null, "avatar": null, "sceneId": null, "cg": null }
+              ]
+            }
           ]
         }
       ]

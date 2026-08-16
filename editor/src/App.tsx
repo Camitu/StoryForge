@@ -131,16 +131,21 @@ export default function App() {
                 return (
                   <div key={chapter.id} className="chapter">
                     <h4>{chapter.name}</h4>
-                    {chapter.sections.map((section) => (
-                      <div key={section.id} className="section">
-                        <h5>
-                          {section.name} <span className="time">({section.time})</span>
-                        </h5>
-                        <ul className="beats">
-                          {section.beats.map((beat, i) => (
-                            <li key={beat.id ?? i}>{beatSummary(beat)}</li>
-                          ))}
-                        </ul>
+                    {chapter.subChapters.map((sub) => (
+                      <div key={sub.id} className="subchapter">
+                        <h5>{sub.name}</h5>
+                        {sub.sections.map((section) => (
+                          <div key={section.id} className="section">
+                            <h6>
+                              {section.name} <span className="time">({section.time})</span>
+                            </h6>
+                            <ul className="beats">
+                              {section.beats.map((beat, i) => (
+                                <li key={beat.id ?? i}>{beatSummary(beat)}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>

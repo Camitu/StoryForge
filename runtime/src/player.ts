@@ -8,7 +8,9 @@ function flattenBeats(project: Project): Beat[] {
   for (const cid of project.chapterOrder) {
     const chapter = project.chapters.find((c) => c.id === cid)
     if (!chapter) continue
-    for (const section of chapter.sections) out.push(...section.beats)
+    for (const sub of chapter.subChapters) {
+      for (const section of sub.sections) out.push(...section.beats)
+    }
   }
   return out
 }
