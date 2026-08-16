@@ -1,7 +1,11 @@
 """StoryForge Server 入口。"""
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
+from .config import BACKGROUND_DIR, SPRITE_DIR
 from .routers import ai, projects
 
 app = FastAPI(
@@ -19,6 +23,12 @@ app.add_middleware(
 
 app.include_router(projects.router)
 app.include_router(ai.router)
+
+# 静态媒体挂载（外部真实素材目录，不存在则跳过）
+if os.path.isdir(SPRITE_DIR):
+    app.mount("/media/sprites", StaticFiles(directory=SPRITE_DIR), name="sprites")
+if os.path.isdir(BACKGROUND_DIR):
+    app.mount("/media/backgrounds", StaticFiles(directory=BACKGROUND_DIR), name="backgrounds")
 
 
 @app.get("/")

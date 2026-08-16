@@ -1,6 +1,11 @@
 import { Player } from './player'
-import sampleJson from '../../shared/examples/sample-project.json'
-import type { Project } from '@storyforge/shared'
+import { DEFAULT_PROJECT_ID, getProject } from './config'
 
-const canvas = document.getElementById('game') as HTMLCanvasElement
-new Player(canvas, sampleJson as unknown as Project)
+async function main(): Promise<void> {
+  const canvas = document.getElementById('game') as HTMLCanvasElement
+  const projectId = new URLSearchParams(location.search).get('project') ?? DEFAULT_PROJECT_ID
+  const project = await getProject(projectId)
+  new Player(canvas, project)
+}
+
+void main()
