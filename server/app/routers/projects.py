@@ -1,12 +1,20 @@
-"""工程 CRUD。"""
+"""工程 CRUD（v3）。"""
 import uuid
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 from .. import store
 from ..models import Project
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
+
+
+class ProjectCreate(BaseModel):
+    """新建工程请求：name + storageDir（项目存储根目录）。"""
+    name: str
+    storageDir: Optional[str] = None
 
 
 @router.get("")
@@ -15,9 +23,19 @@ def list_projects():
 
 
 @router.post("", status_code=201)
-def create_project(project: Project):
-    if not project.id:
-        project.id = uuid.uuid4().hex
+def create_project(body: ProjectCreate):
+    project = Project(
+        id=uuid.uuid4().hex,
+        name=body.name,
+        version="0.3.0",
+        storageDir=body.storageDir,
+        worldview="",
+        characters=[],
+        scenes=[],
+        chapterOrder=[],
+        chapters=[],
+        foreshadows=[],
+    )
     return store.save_project(project)
 
 

@@ -1,0 +1,1013 @@
+{
+  "id": "fb2366fad24342f8be44a0aef36da145",
+  "name": "测试项目1",
+  "version": "0.3.0",
+  "worldview": "11",
+  "characters": [
+    {
+      "id": "616081334ee94ff2a09e43783fd3cf1f",
+      "name": "刘苏",
+      "note": "男主角",
+      "baseSetting": "年龄18",
+      "imagePath": "assets/images/321da0b43f374d6a9176513424883177.png",
+      "plotTimeline": []
+    },
+    {
+      "id": "227316a5395e4fd5aea175a1db18ea14",
+      "name": "悠宝",
+      "plotTimeline": []
+    },
+    {
+      "id": "d0be95304a2b41aaac6c168cb608dd25",
+      "name": "沐雪",
+      "plotTimeline": []
+    },
+    {
+      "id": "3e728c8783b14ef9bb5ae14c0e41df82",
+      "name": "沐星",
+      "note": "",
+      "baseSetting": "",
+      "imagePath": "assets/images/0d2ee16270e34e66999a41e9b169f068.png",
+      "plotTimeline": []
+    },
+    {
+      "id": "8b60e78012aa4b64948f75464a71a809",
+      "name": "丽塔",
+      "plotTimeline": []
+    }
+  ],
+  "scenes": [
+    {
+      "id": "981fcc37a2054b40adfbfddf88cc1376",
+      "name": "客厅（白天）"
+    },
+    {
+      "id": "18252437dc0d4f16afc1c18620ed36b9",
+      "name": "客厅（夜晚）"
+    },
+    {
+      "id": "bc2bb3b4071741c885a836bdf6405d5b",
+      "name": "秋谷浴场"
+    }
+  ],
+  "chapterOrder": [
+    "3493e3a2c9ba4d33a8db9253010c2d5e",
+    "257e8b777a884fbc9fd98eb487366013"
+  ],
+  "chapters": [
+    {
+      "id": "257e8b777a884fbc9fd98eb487366013",
+      "name": "默认",
+      "summary": "",
+      "subChapters": [
+        {
+          "id": "b918a755494a49c3837bb8efdbfecea9",
+          "name": "序章2",
+          "date": "2026-08-06",
+          "summary": "",
+          "tags": [],
+          "condense": "剧情浓缩12·11",
+          "mode": "standard",
+          "freeText": "",
+          "lines": [
+            {
+              "id": "75c0e079f8c7447b9d4efbf727cfddf6",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "722be4736a09429f8b28643592fcdaa0",
+              "kind": "dialogue",
+              "characterId": "227316a5395e4fd5aea175a1db18ea14",
+              "characterName": "悠宝",
+              "expression": "正面站立",
+              "text": "（在LetsGal里改过的对白）2"
+            },
+            {
+              "id": "9fc09269a20f44fe88e6a09194454070",
+              "kind": "dialogue",
+              "characterId": "d0be95304a2b41aaac6c168cb608dd25",
+              "characterName": "沐雪",
+              "expression": "默认",
+              "text": "今天天气真不错呢。"
+            },
+            {
+              "id": "76c8cbe68e82489a9cf65a165568da4b",
+              "kind": "dialogue",
+              "characterId": "d0be95304a2b41aaac6c168cb608dd25",
+              "characterName": "沐雪",
+              "expression": "调皮坏笑",
+              "text": "我们出去玩吧！1212123"
+            },
+            {
+              "id": "420e39d7badd44edb67b1e9aeaed3666",
+              "kind": "dialogue",
+              "characterId": "3e728c8783b14ef9bb5ae14c0e41df82",
+              "characterName": "沐星",
+              "expression": "灿烂微笑",
+              "text": "好呀好呀，走吧！苏是"
+            },
+            {
+              "id": "094d57a700be4c038f2319c611bed05d",
+              "kind": "dialogue",
+              "characterId": "227316a5395e4fd5aea175a1db18ea14",
+              "characterName": "悠宝",
+              "expression": "含蓄合拢",
+              "text": "那……一起出发吧。是"
+            },
+            {
+              "id": "4da4bae3788e499f9d5a688f3f3cb82a",
+              "kind": "scene",
+              "sceneId": "18252437dc0d4f16afc1c18620ed36b9",
+              "sceneName": "客厅（夜晚）"
+            },
+            {
+              "id": "259481dec16440baa9dc91f026c8b85e",
+              "kind": "narration",
+              "text": "夜幕降临，三人回到了·家."
+            },
+            {
+              "id": "a715bb63aa4a40458270b503b23aaeba",
+              "kind": "dialogue",
+              "characterId": "d0be95304a2b41aaac6c168cb608dd25",
+              "characterName": "沐雪",
+              "expression": "脸红慌张",
+              "text": "今天玩得……真开心。"
+            },
+            {
+              "id": "105db99d47344b99b5da2b9ad41a9e39",
+              "kind": "dialogue",
+              "characterId": "227316a5395e4fd5aea175a1db18ea14",
+              "characterName": "悠宝",
+              "expression": "正面站立",
+              "text": "好吧就是这样"
+            },
+            {
+              "id": "fd879b0a64844e18a25d58376112f377",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "0222d11d69724b49851e04070a931a8b",
+              "kind": "narration",
+              "text": "新增一条记录把"
+            },
+            {
+              "id": "8eb52a2ed3374a28b72a3c526c9bf7b2",
+              "kind": "narration",
+              "text": "结束序章"
+            },
+            {
+              "id": "92f600b1621e47019d197fe8c8b50dc4",
+              "kind": "narration",
+              "text": "这里是路线B的分支"
+            },
+            {
+              "id": "5ab36ddc4b5240229769bcc64fda6812",
+              "kind": "narration",
+              "text": "这里是路线A的分支"
+            },
+            {
+              "id": "dbdfe3ba0e804af48214f38f04ea875c",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "56c86d1655114cb990518591d84cad8f",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": "2"
+            },
+            {
+              "id": "a9201fce5dd24977af0ff40b52383041",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "5289e1d562b947d29da93a62f1027dbf",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "5e8d6979d8bd4e9eb0349402993f3480",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "2fbc5eae4c124358b8e41866333017b1",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "78ba5d52b6ec41c6955bee0b4f0c9d09",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "d259bc8b2a344f69a6d3ca64f41cd088",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "a69995a6e3154ec9ad0f761d97e413de",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "bd41ddd6b9ca4649b21f333fad2651b9",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "13dff17e6de94938a9acb404820c66e9",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "28afeb37e9b6467aa1d1b33c08168b8a",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "e8aae0e632084055951cbcbd82e57d21",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "77ee1eb60ff94d61b7aa656a539a24c5",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "2dba2874d4a149569f6ce3a07f519423",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "eb842a8ab1fa41b1a04714e293c2b839",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "173e3068809c47dfbc6c93b21cae9f1f",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "8ab9a326113e42d591117aca8e8f0e3d",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "41ce9001429341ea9cd47cb7cdb94f65",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "aae6a1978ab146288fb052f61c7569ed",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "82841ef34b594fa3a0066e3133ae5ac7",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "80e6fd7f496b44c1a6d94d08dff634a9",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "6241777892a245138824c0795ccbd737",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "3d1708521c38466e88d714700a6c092f",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "06403da7434843e39117d551a4e98921",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "b684c5c328364af38aed25869874426a",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "d9b7db787632422896beb3cf78d41af6",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "fff59717e9c84f6f8283b4278ecb9271",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            }
+          ],
+          "externalBlocks": [
+            {
+              "id": "aa4fab1a-b5cd-467e-a410-cbe9be51994a",
+              "type": "camera",
+              "label": "镜头",
+              "afterLineIndex": 0
+            }
+          ],
+          "fragments": []
+        },
+        {
+          "id": "4ce6ccb054c94cf6be2c3c883e74f3cf",
+          "name": "序章1",
+          "date": "2026-08-14",
+          "summary": "",
+          "tags": [],
+          "condense": "",
+          "mode": "free",
+          "freeText": "2\n3\n4\n5\n",
+          "lines": [
+            {
+              "id": "378e030fd46e4ce5ba095285c77c52c2",
+              "kind": "scene",
+              "sceneId": "bc2bb3b4071741c885a836bdf6405d5b",
+              "sceneName": "秋谷浴场"
+            },
+            {
+              "id": "070d59c0a90842c886bbb2ae3db20737",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "未命名",
+              "expression": "微笑",
+              "text": "这里就是浴场吗？"
+            },
+            {
+              "id": "b432b5b11896433d844521ff028da1dd",
+              "kind": "dialogue",
+              "characterId": "8b60e78012aa4b64948f75464a71a809",
+              "characterName": "丽塔",
+              "expression": "微笑",
+              "text": "欢迎来到秋谷浴场！"
+            },
+            {
+              "id": "bcf506b70d6b4ae19da52e72e3dc3ef6",
+              "kind": "narration",
+              "text": "夕阳西下。"
+            },
+            {
+              "id": "8521a7fa828b48789d6a7682098c39ef",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "9ade8a8df4f14befa79be2157cc723d3",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "9141bc63b0ee443281f8049854a870be",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "4f8a8abe0a5746c088d64539ba9185e8",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "d30cbee7676a498586867fd506269513",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "abdafc49b03e48a7b801322ae21b1478",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "2bd439af1df44976a628e2b5edf70d2c",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "49c820cb0a674780a5f79d5ce0f28c31",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "8a19a06b069740b79cd6d3ff6fb37fab",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "baf8629b1bec403daec7418f38b88ae3",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "b6e04d4369e24aeb9f28fe806307e6c0",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "d3f6084ee3ef48b4be3c372d0a27c586",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "ca0ed8476ed845e4963c384593f235a3",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "269a73b8ec12420bb3d2c7d422eff654",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": "s是"
+            },
+            {
+              "id": "042f853bae7b464aab838a01675068b8",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "4786a1e2c1df415899a0c9dfbef11f7d",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": "最后，这样就像了。"
+            },
+            {
+              "id": "57de3648bad642b8a6bcdfad101a8db4",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": "zui'hozui'hou最后"
+            },
+            {
+              "id": "bd72305d42824b71a8c304f02bf7b2e4",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "817cf0adb72a4d7098defe7762a10bb1",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "c24263aeef3640859f2d28fd517d1228",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "e6752d807f8e44ed8af0052e4e5e2323",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "5bc419fc6f354dfbb038a16cc898f6c6",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "d44b74b6b25245ea8ba09331617e49f3",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "b18c7437a2e44c09a40efd23847698a5",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "3104492ca35844788925d1edb089758c",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "f8022c668a0c463f8038294ca70d2c4c",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": "ssh是"
+            }
+          ],
+          "externalBlocks": [],
+          "fragments": [
+            {
+              "id": "0b20454af2c4430c8a812d29d3a39260",
+              "name": "片段1",
+              "lines": [
+                {
+                  "id": "6b8f4f33398847ceba944216053765f2",
+                  "kind": "narration",
+                  "text": "序章1片段1"
+                }
+              ],
+              "externalBlocks": [],
+              "freeText": ""
+            }
+          ]
+        },
+        {
+          "id": "b211783784764ea483cf2a9de43686fb",
+          "name": "第二章",
+          "date": "2026-08-19",
+          "summary": "",
+          "tags": [
+            "日常"
+          ],
+          "condense": "",
+          "mode": "free",
+          "freeText": "",
+          "lines": [
+            {
+              "id": "8784b5e882694dd2a5b64cfbd7568a24",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "b6d47b2d853f4e9ebf44b90a3aff79b7",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "微笑",
+              "text": "hhahao"
+            },
+            {
+              "id": "6490e8834cd24b05bbfff933575d8515",
+              "kind": "dialogue",
+              "characterId": "d0be95304a2b41aaac6c168cb608dd25",
+              "characterName": "沐雪",
+              "expression": "生气",
+              "text": "不好！"
+            },
+            {
+              "id": "45fe924391f149bba63dcd4b462a6bb9",
+              "kind": "scene",
+              "sceneId": "18252437dc0d4f16afc1c18620ed36b9",
+              "sceneName": "客厅（夜晚）"
+            },
+            {
+              "id": "00518998992548c79504f7dcbda7a4b1",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": "1111"
+            },
+            {
+              "id": "635c74afe69d4931935f305e17194fcb",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "61dc0d6a88634c3eba4b5e5a4cc07a94",
+              "kind": "narration",
+              "text": "测试分支后旁白"
+            }
+          ],
+          "externalBlocks": [
+            {
+              "id": "92b64ca4-77ca-4716-844e-dc4fc935d89d",
+              "type": "particle",
+              "label": "粒子特效 LIGHT_SNOW",
+              "afterLineIndex": 6
+            },
+            {
+              "id": "ca911dbe-b459-42b1-9c0a-cb2e647b82b1",
+              "type": "branch",
+              "label": "分支选项：选择片段1 / 选择片段2",
+              "afterLineIndex": 6
+            }
+          ],
+          "fragments": [
+            {
+              "id": "47365a974c16412aa5d13e81056fc3d7",
+              "name": "片段1",
+              "lines": [
+                {
+                  "id": "8510362c9c124424bb7481987752d5aa",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": "飒飒"
+                },
+                {
+                  "id": "a1b7f7616afe423581171a379224ca60",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "75adb3ecf40940768a0a0b252e10c171",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "88f9618098844540a199241c82ee8e6e",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "a6d609eb75714eefad2bb1db5e0c818e",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "8c4b47faff104be7af9a74859149f06a",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "ee599ed8a7f74b1ba1e44d21e7191178",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "07e098fc3cda4172929ff69b512538d9",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "d6446129858247d09f9bbd1d5322a7b9",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "4439778db4b54abd953f95696bd3bebd",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "de924abbb7c64c6490ac6107086fcd34",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "27ae59746fac449399ec3cf9a0e2e705",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "05e282d7c5d0415baef50aeb4a30c293",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "d76d3b198e7a4c80ac1c3a19f4001146",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "4c7d5eccf2d64a4e8da62e82c38947bf",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "ea2f8ad184634bd3b79419eb5272c13a",
+                  "kind": "dialogue",
+                  "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+                  "characterName": "刘苏",
+                  "expression": "",
+                  "text": ""
+                },
+                {
+                  "id": "29227b0207164d6d998b012083ca6923",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "16df9a4610ae4844899c6e9fe4b119f4",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "4b5282a3222748b3a0bea31b86414c76",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "b49947a52a4f437a96332c9569e58f9f",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "5d0a57eaf0b54121ab58ee9d6349fc17",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "e76537c90dc44bec9716a0eb9b987c32",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "db3a7ef9a8884733b7543eeb75c2261f",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "a02522391ab64aa38b9548b8211c74a2",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "b4fd20faecda4254af93b3c2a5062596",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "9c0f5b22344f49ff9237e6b2117014fb",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "a3d6390539db45dd8be908225469ef99",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                },
+                {
+                  "id": "48430a396aa74d0395c695781462337e",
+                  "kind": "scene",
+                  "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+                  "sceneName": "客厅（白天）"
+                }
+              ],
+              "externalBlocks": [],
+              "freeText": "w'q'w 、\n21\n2112\n323\n12\n12\n12\n1\n32\n3\n2"
+            },
+            {
+              "id": "5ccc63de6f0146e59754f17e09c50dfc",
+              "name": "片段2",
+              "lines": [
+                {
+                  "id": "ced57964df984b3ca3b15a1ba4fa3f84",
+                  "kind": "narration",
+                  "text": "第二章片段2"
+                }
+              ],
+              "externalBlocks": [],
+              "freeText": ""
+            }
+          ]
+        },
+        {
+          "id": "ee5b8f86630948c5984f61a9acd4d8a4",
+          "name": "第4章",
+          "date": "",
+          "summary": "",
+          "tags": [],
+          "condense": "",
+          "mode": "standard",
+          "freeText": "",
+          "lines": [
+            {
+              "id": "1412659b3d954957bae195a51c365263",
+              "kind": "narration",
+              "text": "第四章内容"
+            }
+          ],
+          "externalBlocks": [],
+          "fragments": []
+        }
+      ]
+    },
+    {
+      "id": "3493e3a2c9ba4d33a8db9253010c2d5e",
+      "name": "新大章节",
+      "subChapters": []
+    }
+  ],
+  "foreshadows": [
+    {
+      "id": "028fa8fe39b54ceaa97f0b040a29699e",
+      "content": "出去玩",
+      "plantedAt": {
+        "subChapterId": "b918a755494a49c3837bb8efdbfecea9",
+        "lineId": "76c8cbe68e82489a9cf65a165568da4b"
+      },
+      "plantedDate": "2026-08-04",
+      "status": "open"
+    },
+    {
+      "id": "7e809205139b4e96826ca0a092fadc80",
+      "content": "玩的很开心",
+      "plantedAt": {
+        "subChapterId": "b918a755494a49c3837bb8efdbfecea9",
+        "lineId": "a715bb63aa4a40458270b503b23aaeba"
+      },
+      "plantedDate": "2026-08-04",
+      "status": "resolved",
+      "resolvedAt": {
+        "subChapterId": "b211783784764ea483cf2a9de43686fb",
+        "lineId": "b6d47b2d853f4e9ebf44b90a3aff79b7"
+      },
+      "resolvedDate": "2026-08-19"
+    },
+    {
+      "id": "00b72515eceb49769da456050a34168e",
+      "content": "2121212",
+      "plantedAt": {
+        "subChapterId": "b918a755494a49c3837bb8efdbfecea9",
+        "lineId": "094d57a700be4c038f2319c611bed05d"
+      },
+      "plantedDate": "2026-08-04",
+      "status": "open"
+    },
+    {
+      "id": "f73ea038e69b4d829bfdfd9d4f51b15b",
+      "content": "12121212",
+      "plantedAt": {
+        "subChapterId": "4ce6ccb054c94cf6be2c3c883e74f3cf",
+        "lineId": "9ade8a8df4f14befa79be2157cc723d3"
+      },
+      "plantedDate": "2026-08-14",
+      "status": "resolved",
+      "resolvedAt": {
+        "subChapterId": "b211783784764ea483cf2a9de43686fb",
+        "lineId": "6490e8834cd24b05bbfff933575d8515"
+      },
+      "resolvedDate": "2026-08-19"
+    },
+    {
+      "id": "324138d3dd8d4e3da7bebc635b51191b",
+      "content": "332424",
+      "plantedAt": {
+        "subChapterId": "4ce6ccb054c94cf6be2c3c883e74f3cf",
+        "lineId": "abdafc49b03e48a7b801322ae21b1478"
+      },
+      "plantedDate": "2026-08-14",
+      "status": "open"
+    }
+  ]
+}

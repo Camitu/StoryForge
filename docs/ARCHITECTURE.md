@@ -1,85 +1,99 @@
-# StoryForge 架构文档
+# StoryForge 架构文档（v3 最终版）
 
-> 与 AI 协作的 Galgame 实时开发生产引擎。本文档面向后续开发续接，记录技术架构与关键设计决策。
+> 更新：2026-08-18（v3 第一版开发完成）
+> StoryForge = LetsGal 的**上游剧情写作与 AI 协作工具**。演出 / 素材 / 预览 / 打包全部交给 LetsGal。
 
-## 1. 目录结构
+---
 
-```
-StoryForge/
-├── docs/            # 文档（PLAN.md 方案 / ARCHITECTURE.md 架构 / PROGRESS.md 进度）
-├── shared/          # @storyforge/shared：TS 数据模型（权威类型，单源）
-│   └── src/types/   # beat / character / scene / foreshadow / state / asset / project
-├── server/          # FastAPI 服务（端口 8790）+ JSON 工程存储 + 媒体静态挂载
-│   ├── app/         # main/config/models/store/logic + routers(projects, ai)
-│   ├── data/        # 工程 JSON 文件（demo-youbao.json 等）
-│   └── smoke_test.py
-├── editor/          # React 18 + Vite + zustand（可视化脚本编辑器，端口 5173）
-│   └── src/         # App / store / api + components(ScriptView, SectionEditor, AssetView)
-└── runtime/         # Pixi.js 7 播放器（端口 5174，读 beat 渲染背景/立绘/对白）
-```
+## 1. 项目定位
+
+- StoryForge 负责**剧情写作层**：章节结构、标准写作行、自由写作草稿、人设、场景、伏笔、时间线/浓缩。
+- LetsGal 负责**演出层**：特效、动画、音效、分支、立绘、打包发布。
+- 双向同步：StoryForge 写剧情 → 导出到 LetsGal 工程；LetsGal 改动（含特效/分支）→ 反向导入回 StoryForge。
 
 ## 2. 技术栈
 
-| 层 | 选型 |
-|---|---|
-| 数据模型 | TypeScript（`@storyforge/shared`，字段 camelCase，JSON 契约与 Python 一致） |
-| 编辑器 UI | React 18 + zustand + Vite |
-| 游戏运行时 | Pixi.js 7（背景 cover / 立绘撑满高度） |
-| 服务 | FastAPI + Pydantic v2，权威存储为 JSON 工程文件（git 友好），SQLite 索引后置 |
-| 打包发布 | Electron + electron-builder（P3，尚未开始） |
+| 层 | 技术 | 目录 |
+|:---|:---|:---|
+| 共享类型 | TypeScript（camelCase 契约） | `shared/src/types/` |
+| 后端 | Python 3.11 + FastAPI + Pydantic + uvicorn | `server/app/` |
+| 前端 | React 18 + Vite + TypeScript + zustand | `editor/` |
+| 同步层 | Python（独立模块，server 调用） | `sync_bridge/` |
 
-## 3. 数据模型（层级）
-
-```
-Project
-├── characters[]   角色（含 expressions[]：name + assetPath 立绘）
-├── scenes[]       场景（layers[] 多层视差）
-├── assets[]       资产库（引用计数，ready=false = 待创作）
-└── chapters[]（按 chapterOrder 排序）
-     └── subChapters[]  子章节（如「000 突如其来的夏日」）
-          └── sections[]  小节（一个时间段）
-               ├── summary      剧情概要（写作指引）
-               ├── condense     StateDelta 剧情浓缩（压缩上下文）
-               ├── tags / foreshadows / anchors
-               └── beats[]      结构化剧本最小单元
-```
-
-### Beat 判别联合（kind）
-
-`dialogue`（角色/表情/对白/立绘/头像/场景/CG）、`narration`（旁白）、`scene`（切场景）、
-`character`（立绘变化）、`bgm`、`sfx`、`choice`（分支）、`jump`、`curtain`、`end`。
-
-核心概念：**叙事状态压缩**——`WorldState`（世界状态快照）+ `StateDelta`（每节的状态差量/浓缩）。
-AI 写任意小节只需「快照 + 附近锚点」，不必读全文。
-
-## 4. 数据流
+## 3. 数据模型
 
 ```
-editor (5173) ──fetch──▶ server (8790) ──读/写──▶ server/data/*.json
-runtime (5174) ──fetch──▶ server (8790) ──GET /api/projects/{id}
-                         server ──静态挂载──▶ /media/sprites  → E:\Share_folder\PicUP\悠宝的日常
-                         　　　　　　　　　  /media/backgrounds → E:\output
+Project（工程）
+├── worldview            整体世界观
+├── characters[]         人设（name/note/baseSetting/imagePath/plotTimeline）
+├── scenes[]             场景（名称唯一）
+├── chapterOrder[]       大章节顺序
+├── chapters[]           大章节（仅 StoryForge 分组用）
+│   └── subChapters[]    小章节（= LetsGal 章节，名称唯一）
+│       ├── date/summary/tags/condense    时间线/概要/标签/浓缩
+│       ├── mode           standard | free
+│       ├── freeText      自由写作草稿（Markdown，不同步 LetsGal）
+│       ├── lines[]       标准写作行（= LetsGal main fragment）
+│       ├── externalBlocks[]  外部演出块占位（LetsGal 特效/分支，只读）
+│       └── fragments[]   子片段（= LetsGal 命名 fragment）
+│           ├── lines[]       片段内容行
+│           ├── externalBlocks[]
+│           └── freeText      片段自由写作（不同步）
+└── foreshadows[]        伏笔（plantedAt/resolvedAt 指向 subChapterId+lineId）
 ```
 
-- 编辑器与播放器均通过 `http://127.0.0.1:8790` 访问服务（CORS 已开放 `*`）。
-- 资产路径在工程里存**相对路径**（如 `sprites/悠宝/立绘基本/xxx.png`），前端用 `mediaUrl()` 拼成完整 URL。
+标准写作行（ScriptLine）：`dialogue`（角色/表情/文本）/ `narration`（文本）/ `scene`（场景）。
 
-## 5. 关键 API（P0）
+## 4. 存储
 
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| GET/POST | `/api/projects` | 列出 / 新建工程（POST 只需 `{name}`） |
-| GET/PUT/DELETE | `/api/projects/{id}` | 读 / 全量更新 / 删 |
-| GET | `/api/projects/{id}/context?at=…` | 叙事世界状态快照 |
-| POST | `/api/projects/{id}/sections/{sid}/beats` | 提交 beat（锚点保护，mode=append/replace） |
-| POST | `/api/projects/{id}/sections/{sid}/condense` | 写入剧情浓缩 |
-| POST | `/api/projects/{id}/sections/{sid}/foreshadow[/{fid}/resolve]` | 登记/回收伏笔 |
-| GET | `/api/projects/{id}/check` | 一致性检查（机械校验） |
+- 工程文件：用户指定 `storageDir/project.json`（无则 `server/data/{id}.json`）。
+- 索引：`server/data/projects.json`（id/name/storageDir）。
+- **写入安全**：`_atomic_write_text` = 跨进程文件锁（msvcrt）+ 临时文件 + `os.replace`，防止多实例并发写坏文件。
+- 同步映射：`server/data/{project_id}.sync.json`（详见 SYNC-MAPPING.md）。
 
-## 6. 关键设计决策
+## 5. API 概览（server/app/routers/ai.py）
 
-1. **权威存储 = JSON 工程文件**（对齐 LetsGal 思路，git 友好）；SQLite 仅作后续索引，暂未引入。
-2. **四层剧情层级**：大章节 → 子章节 → 小节 → beat（依据用户反馈新增「子章节」层）。
-3. **资产库与脚本编辑分页**：编辑器两视图切换，不混在同一页。
-4. **外部 AI 协作**：语义生成（写剧情/浓缩/查错）由外部 agent 调用 API 完成；服务只做数据层 + 机械校验。
-5. **媒体不复制进仓库**：server 直接挂载用户外部素材目录（机器相关路径见 config.py）。
+全部可读写，供 AI 调用：
+
+- 工程 CRUD（name + storageDir）、世界观
+- 人设 CRUD（删除前引用检查 409）、场景 CRUD
+- 大章节 CRUD + 排序；小章节 CRUD + 排序 + 跨大章节移动
+- 行 CRUD + 排序；子片段 CRUD + 片段行 CRUD + 排序
+- 伏笔：登记 / 回收（记录 lineId）/ 重开 / 删除
+- 全局搜索（含片段文本，命中返回 fragmentId 跳转）、一致性检查
+- 图片上传 / 媒体读取（目录穿越防护）
+- 同步：`/sync/bind` `/sync/export` `/sync/import` `/sync/status`
+
+## 6. 编辑器（editor/）
+
+- **5 Tab**：人设世界观 / 章节写作管理 / 剧情伏笔与回收 / 时间线与浓缩剧情 / LetsGal 同步。
+- **写作类型**：标准写作（结构化行）/ 自由写作（Markdown），全局切换。
+- **编辑/预览**：全局工具栏切换；标准预览 = 只读行渲染，自由预览 = Markdown 渲染。
+- **滚轮衔接**：正文滚到顶/底自动切换上一章末尾/下一章头部（Word 式分页）。
+- **自动保存**：行文本 800ms 防抖；章节属性/自由写作 3s 防抖；切换章节时强制 flush；全局「保存」按钮。
+- **右侧属性侧边栏**：时间线日期 / 标签 / 剧情概要 / 剧情浓缩（sticky 跟随）。
+- **目录树**：大章节（全宽、右侧 ＋新建小章节/✕）→ 小章节（▲▼＋✕）→ 子片段（└ 前缀、✕）；时间轴同 grid 对齐。
+- **外部演出块占位**：行列表中显示 LetsGal 特效/分支（只读橙色虚线行）。
+- 双主题（浅/暗）、MemoVault 视觉风格。
+
+## 7. 同步层（sync_bridge/）
+
+| 文件 | 职责 |
+|:---|:---|
+| `letsgal.py` | LetsGal 工程只读解析 + `placeholder_id()`（uuid5 确定性标准 UUID） |
+| `exporter.py` | 正向导出（StoryForge → LetsGal） |
+| `importer.py` | 反向导入（LetsGal → StoryForge），含外部演出块收集 |
+| `mapping.py` | `{project_id}.sync.json`：line ↔ block id 映射（增量更新基础） |
+
+核心策略：**增量更新**——按 block id 映射更新文本块，特效/分支块按原始顺序原位保留。
+
+## 8. 启动与运维
+
+- 一键启动：`start-dev-windows.bat`（清理旧实例 → 起 server+editor → 自动开网页）；`... stop` 停止。
+- Server: `http://127.0.0.1:8790/docs`（API 文档）；Editor: `http://127.0.0.1:5173`。
+- 环境：`server/.venv`（系统 Python 3.11 创建），依赖见 `server/requirements.txt`。
+- ⚠️ bat 文件为 **GBK 编码**（cmd 限制），编辑需 iconv 转码；前端 build 需在 Windows 跑。
+
+## 9. 数据模型改动规范
+
+模型改动需同步四处：`shared/src/types/*` → `server/app/models.py` → `server/app/routers/ai.py` → `editor/src/*`。

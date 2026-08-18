@@ -1,0 +1,41 @@
+{
+  "projectId": "fff35ea5a213488e9f7fc58075cb7acd",
+  "letsgalDir": "E:\\GamePro\\test",
+  "chapters": {
+    "2977121b057e4db59cd27c1c7ab7e777": {
+      "chapterName": "序章",
+      "chapterFile": "chapters/序章-2.json",
+      "fragmentName": "main",
+      "beats": {
+        "e708a42728a049938dc17ae6962943ad": "e708a42728a049938dc17ae6962943ad",
+        "42ee6341e07f408397d60772dac7d994": "42ee6341e07f408397d60772dac7d994",
+        "c9aa28baf4c94a13aae1c31fef0e02f2": "c9aa28baf4c94a13aae1c31fef0e02f2",
+        "06c6eb662ace4f76a03e7cbe55e1bcf2": "06c6eb662ace4f76a03e7cbe55e1bcf2",
+        "0703349e5c764315999fe9eff65ba64f": "b01",
+        "24467fe8c77640a7b51fabc761677dbe": "b02",
+        "aef2f25d21be4a9fb24da15b0924bfa2": "b03",
+        "378221863c704e36b63317ce3bd47958": "b04",
+        "261b23689873453591b0ad7cdfafb508": "b05",
+        "60bd2b21925b445ea61e741a93ca8f9c": "b06",
+        "4034a7b3db5340af9ca6981d73b87a69": "b07",
+        "0b0af90f4e31421eae5959c9a8ce252f": "b08",
+        "2c26fb226f8d406182d3e8d1e7c89a26": "b09",
+        "a462df574621470fb648f05eb50af50a": "6dd9b6ba-1a2e-4d63-ac6f-ee05a413750d",
+        "8529ba0dee3147f186b93165fd644890": "e3a64712-d480-41ae-a5a8-2b40f370a8f2",
+        "9a7d43b27563423b981611477a53e1c8": "8b847041-7ec3-44c2-b4cc-395f5646bd6c",
+        "20328f6e47604d2ca0d54300d9e046c9": "ba95a2ba-d099-47ab-9c6c-fe5dac15573b",
+        "792ff51198d440598a61957da86aca3b": "6b3ac96a-06ac-4583-9954-45956527e78c",
+        "895d67d2998c4c26aff64da49c406aeb": "d7a80a90-7d5d-4f72-b709-0dc832d72788"
+      }
+    },
+    "32dd8ad41da54ffbb82d342c1bbc58f7": {
+      "chapterName": "第2章",
+      "chapterFile": "chapters/第2章.json",
+      "fragmentName": "main",
+      "beats": {
+        "50c5e009e5ad4f388347bf69cff2f9a3": "d4c60e5c-aa24-43cf-95e0-692169f96a5e",
+        "17143da8b58f4040af7b57b6f29287ba": "dc242b37-84be-4360-89de-56c402c11fde"
+      }
+    }
+  }
+}

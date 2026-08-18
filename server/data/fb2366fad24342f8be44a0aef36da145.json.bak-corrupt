@@ -1,0 +1,278 @@
+{
+  "id": "fb2366fad24342f8be44a0aef36da145",
+  "name": "测试项目1",
+  "version": "0.3.0",
+  "worldview": "11",
+  "characters": [
+    {
+      "id": "616081334ee94ff2a09e43783fd3cf1f",
+      "name": "刘苏",
+      "note": "男主角",
+      "baseSetting": "年龄18",
+      "imagePath": "assets/images/321da0b43f374d6a9176513424883177.png",
+      "plotTimeline": []
+    },
+    {
+      "id": "227316a5395e4fd5aea175a1db18ea14",
+      "name": "悠宝",
+      "plotTimeline": []
+    }
+  ],
+  "scenes": [
+    {
+      "id": "981fcc37a2054b40adfbfddf88cc1376",
+      "name": "客厅（白天）"
+    }
+  ],
+  "chapterOrder": [
+    "3493e3a2c9ba4d33a8db9253010c2d5e",
+    "257e8b777a884fbc9fd98eb487366013"
+  ],
+  "chapters": [
+    {
+      "id": "257e8b777a884fbc9fd98eb487366013",
+      "name": "默认",
+      "summary": "",
+      "subChapters": [
+        {
+          "id": "b918a755494a49c3837bb8efdbfecea9",
+          "name": "序章",
+          "date": "2026-08-04",
+          "summary": "",
+          "tags": [],
+          "condense": "",
+          "mode": "standard",
+          "freeText": "",
+          "lines": [
+            {
+              "id": "75c0e079f8c7447b9d4efbf727cfddf6",
+              "kind": "scene",
+              "sceneId": "981fcc37a2054b40adfbfddf88cc1376",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "722be4736a09429f8b28643592fcdaa0",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "悠宝",
+              "expression": "正面站立",
+              "text": "（在LetsGal里改过的对白）ssasa'asa'a'asa'a'a'asa'a'a'a'asa'a'a'a'a'a"
+            },
+            {
+              "id": "9fc09269a20f44fe88e6a09194454070",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "沐雪",
+              "expression": "默认",
+              "text": "今天天气真不错呢。"
+            },
+            {
+              "id": "76c8cbe68e82489a9cf65a165568da4b",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "沐雪",
+              "expression": "调皮坏笑",
+              "text": "我们出去玩吧！"
+            },
+            {
+              "id": "420e39d7badd44edb67b1e9aeaed3666",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "沐星",
+              "expression": "灿烂微笑",
+              "text": "好呀好呀，走吧！"
+            },
+            {
+              "id": "094d57a700be4c038f2319c611bed05d",
+              "kind": "dialogue",
+              "characterId": "227316a5395e4fd5aea175a1db18ea14",
+              "characterName": "悠宝",
+              "expression": "含蓄合拢",
+              "text": "那……一起出发吧。"
+            },
+            {
+              "id": "4da4bae3788e499f9d5a688f3f3cb82a",
+              "kind": "scene",
+              "sceneId": "",
+              "sceneName": "客厅（夜晚）"
+            },
+            {
+              "id": "259481dec16440baa9dc91f026c8b85e",
+              "kind": "narration",
+              "text": "夜幕降临，三人回到了·家."
+            },
+            {
+              "id": "a715bb63aa4a40458270b503b23aaeba",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "沐雪",
+              "expression": "脸红慌张",
+              "text": "今天玩得……真开心。"
+            },
+            {
+              "id": "105db99d47344b99b5da2b9ad41a9e39",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "悠宝",
+              "expression": "正面站立",
+              "text": "好吧就是这样"
+            },
+            {
+              "id": "fd879b0a64844e18a25d58376112f377",
+              "kind": "scene",
+              "sceneId": "",
+              "sceneName": "客厅（白天）"
+            },
+            {
+              "id": "0222d11d69724b49851e04070a931a8b",
+              "kind": "narration",
+              "text": "新增一条记录把"
+            },
+            {
+              "id": "8eb52a2ed3374a28b72a3c526c9bf7b2",
+              "kind": "narration",
+              "text": "结束序章"
+            },
+            {
+              "id": "92f600b1621e47019d197fe8c8b50dc4",
+              "kind": "narration",
+              "text": "这里是路线B的分支"
+            },
+            {
+              "id": "5ab36ddc4b5240229769bcc64fda6812",
+              "kind": "narration",
+              "text": "这里是路线A的分支"
+            },
+            {
+              "id": "dbdfe3ba0e804af48214f38f04ea875c",
+              "kind": "scene",
+              "sceneId": "",
+              "sceneName": ""
+            },
+            {
+              "id": "56c86d1655114cb990518591d84cad8f",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "text": ""
+            }
+          ],
+          "fragments": []
+        },
+        {
+          "id": "4ce6ccb054c94cf6be2c3c883e74f3cf",
+          "name": "序章1",
+          "date": "2026-08-14",
+          "summary": "",
+          "tags": [],
+          "condense": "",
+          "mode": "standard",
+          "freeText": "",
+          "lines": [
+            {
+              "id": "378e030fd46e4ce5ba095285c77c52c2",
+              "kind": "scene",
+              "sceneId": "",
+              "sceneName": "秋谷浴场"
+            },
+            {
+              "id": "070d59c0a90842c886bbb2ae3db20737",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "",
+              "expression": "微笑",
+              "text": "这里就是浴场吗？"
+            },
+            {
+              "id": "b432b5b11896433d844521ff028da1dd",
+              "kind": "dialogue",
+              "characterId": "",
+              "characterName": "丽塔",
+              "expression": "微笑",
+              "text": "欢迎来到秋谷浴场！"
+            },
+            {
+              "id": "bcf506b70d6b4ae19da52e72e3dc3ef6",
+              "kind": "narration",
+              "text": "夕阳西下。"
+            }
+          ],
+          "fragments": []
+        },
+        {
+          "id": "55d59dbac8954782bde65019b7263528",
+          "name": "第二章",
+          "date": "2026-08-22",
+          "summary": "",
+          "tags": [],
+          "condense": "",
+          "mode": "free",
+          "freeText": "",
+          "lines": [
+            {
+              "id": "6faf7affb0d7403fbaa5606d14a3ada8",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "调皮坏笑",
+              "text": "可以吗"
+            },
+            {
+              "id": "4de0e5bc75d246b784802deabe792544",
+              "kind": "narration",
+              "text": "是啊，这样把。"
+            },
+            {
+              "id": "e295c0379dd4431b969eb73bca19b4ef",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "text": ""
+            },
+            {
+              "id": "3e81eb8ac2e14e95a78e590699679c01",
+              "kind": "dialogue",
+              "characterId": "616081334ee94ff2a09e43783fd3cf1f",
+              "characterName": "刘苏",
+              "expression": "",
+              "text": ""
+            },
+            {
+              "id": "99f913aa0be84b808dedf295bddfaac5",
+              "kind": "scene",
+              "sceneId": "",
+              "sceneName": ""
+            },
+            {
+              "id": "308be1114a8d4e7f8af80b0c2f3ed509",
+              "kind": "narration",
+              "text": ""
+            },
+            {
+              "id": "6112ac5476fb445da8bc342635798259",
+              "kind": "scene",
+              "sceneId": "",
+              "sceneName": ""
+            }
+          ],
+          "fragments": [
+            {
+              "id": "7f8e8405977d4ac79aac95cd809dc3aa",
+              "name": "片段1",
+              "lines": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3493e3a2c9ba4d33a8db9253010c2d5e",
+      "name": "新大章节",
+      "subChapters": []
+    }
+  ],
+  "foreshadows": []
+}
+  ],
+  "foreshadows": []
+}

@@ -1,52 +1,60 @@
-# StoryForge 进度文档
+# StoryForge 进度文档（v3）
 
-> 每次推进后更新此文件，记录「已完成 / 进行中 / 待办」，方便下次续接。
+> 更新：2026-08-18 —— **v3 第一版开发完成，明天开始实际写作测试**
+> 详细架构见 ARCHITECTURE.md；同步数据对应关系见 SYNC-MAPPING.md。
 
-## 快速启动（开发）
+---
 
-```bash
-# 终端1：server（改动后需重启；媒体挂载在 config.py）
-cd E:\Apps\StoryForge\server
-.venv\Scripts\python -m uvicorn app.main:app --port 8790
+## 快速启动
 
-# 终端2：编辑器
-cd E:\Apps\StoryForge\editor
-npm run dev          # http://localhost:5173
-
-# 终端3：播放器
-cd E:\Apps\StoryForge\runtime
-npm run dev          # http://localhost:5174 （默认播 demo-youbao，可 ?project=xxx）
+```bat
+cd /d E:\Apps\StoryForge
+start-dev-windows.bat          # 启动（清理旧实例 + 自动开网页）
+start-dev-windows.bat stop     # 一键停止
 ```
 
-> server 依赖装在 `server\.venv`（requirements.txt）；editor/runtime 用 `npm install`（已有 node_modules）。
+- Server: http://127.0.0.1:8790/docs · Editor: http://127.0.0.1:5173
+- 环境：`server/.venv`（系统 Python 3.11）；bat 为 GBK 编码，编辑需 iconv 转码。
 
-## 已完成
+## 当前状态：v3 第一版 ✅（2026-08-18）
 
-- [x] **数据模型**：beat 判别联合 + 人物/场景/伏笔 + 叙事状态压缩（WorldState/StateDelta）+ 四层层级。
-- [x] **server**：工程 CRUD + AI 协作 API + 一致性检查 + 媒体静态挂载 + 冒烟测试。
-- [x] **编辑器**：三视图（脚本总览 / 资产库）+ 可折叠树 + 时间线侧栏 + 子章节/小节编辑 + 新建流程 + beat 逐条编辑（对白/旁白/切场景的增删改排序）。
-- [x] **播放器**：fetch 工程 → 渲染真实背景/立绘/对白框，点击/空格推进，错误提示。
-- [x] **demo 工程**：`悠宝的日常`（3 角色 / 2 场景 / 三层级结构）。
+StoryForge = LetsGal 上游剧情写作工具，核心链路全部打通：
+**写作 → 正向同步 → LetsGal 预览 → LetsGal 改演出 → 反向同步 → 回写**。
 
-## 进行中 / 待办
+### 已完成
 
-- [ ] **beat 编辑补全**：choice/jump/bgm/sfx/curtain/end 等类型的可视化编辑（当前仅对白/旁白/切场景可编辑，其余只读显示）。
-- [ ] **拖动排序**：大章节/子章节上下拖动（需引入 dnd-kit）。
-- [ ] **子章节编辑弹窗化**（当前为右侧面板，功能等价，交互待打磨）。
-- [ ] **章节操作**：复制、自动实例化资产素材。
-- [ ] **AI 协作实战闭环**：外部 agent 走「取快照 → 带锚点写几节 → 生成浓缩 → 一致性检查」。
-- [ ] **资产库管理**：上传/绑定/引用计数/空素材清单（当前资产库仅展示角色+场景，无管理操作）。
-- [ ] **运行时进阶**：多角色同屏、转场、BGM/音效、分支跳转（当前线性播放）。
+- **数据模型**：Project → 大章节（分组）→ 小章节（= LetsGal 章节）→ lines / 子片段 / externalBlocks；人设 / 场景 / 伏笔 / 时间线浓缩。
+- **编辑器**：
+  - 5 Tab；MemoVault 风格双主题。
+  - 标准写作（LetsGal 风格行 UI：序号聚焦高亮、无边框流、同行操作按钮）/ 自由写作（Markdown + 行号 + 自适应高度）。
+  - 编辑/预览全局切换；滚轮衔接上下章节（Word 式分页）。
+  - 防抖自动保存（行 800ms / 属性 3s / 切换强制 flush）+ 全局保存。
+  - 右侧属性侧边栏；全局工具栏（时间轴/写作类型/编辑预览/保存）。
+  - 目录树三级缩进 + 子片段独立编辑视图（标准/自由写作分开存储）。
+  - 角色/场景选择器（可输入新建）；场景管理栏；伏笔锚点图标（🚩 埋设 / ✅ 回收，悬浮显示内容）。
+  - 全局搜索（含片段文本，命中跳转片段）。
+  - 时间线 Tab：垂直时间线（只显示有浓缩的章节，只读展示 + 定位跳转）。
+- **后端**：全量读写 API（含子片段/伏笔/搜索/检查）；原子写 + 跨进程锁。
+- **同步**：双向增量同步；特效/分支原位保留；外部演出块占位展示；角色/场景自动创建。
+- **运维**：一键启停脚本（防多实例）；系统 Python 3.11 专用 venv。
 
-## 路线图
+### 验证
 
-- **P0（纵向切片）**：✅ 基本完成——真实素材 → server → 编辑器管理 + 播放器可玩。
-- **P1**：资产库管理 + ComfyUI 接入 + 批量生成素材。
-- **P2**：完整预览/调试运行时（点击播放/改表情/换场景/插音效/转场）。
-- **P3**：路线分支图、打包发布（Electron）、UI 定制。
+- server smoke_test 12 项 ✅；editor tsc + vite build ✅。
+- 端到端：正向同步（章节/子片段/角色/场景/章节树）✅；反向同步（文本/新章节/新片段）✅；特效分支位置保持 ✅；外部演出块占位 ✅。
 
-## 注意事项
+## 待办（下一步）
 
-1. **媒体路径是机器相关的**：`server/app/config.py` 里 `SPRITE_DIR` / `BACKGROUND_DIR` 指向本机 `E:\Share_folder\...` 与 `E:\output`；换机器需改。
-2. **GitHub 推送**：远程为 SSH（`git@github.com:Camitu/StoryForge.git`）；本机密钥有 passphrase，非交互推送需 `SSH_ASKPASS` 方式（密钥密码见密钥本身，勿写入仓库）。
-3. **数据模型改动**需同步改：`shared/src/types/*` → `server/app/models.py` → `server/app/logic.py` / `routers/ai.py` → `editor` / `runtime` 的遍历逻辑 → demo/sample JSON。
+- [ ] **LetsGal 完整闭环实测**：真实写作若干章 → 同步 → LetsGal 预览 → 加演出 → 反向 → 确认全链路。
+- [ ] 分支写作（StoryForge 内简单分支，已有子片段基础）。
+- [ ] AI 协作 API 文档（为内置 AI 准备）。
+- [ ] 自由写作 → AI 转标准写作接口（提示词模板）。
+- [ ] 编辑器体验：行内新建角色/场景的已有；`未命名` 占位角色提示。
+- [ ] git 提交（大量改动尚未提交，用户确认后推送）。
+
+## 踩坑速查（详见 SYNC-MAPPING.md）
+
+1. 所有 ID 必须标准 UUID（block id 用 `placeholder_id`，勿用 32hex line id）。
+2. LetsGal 章节列表靠 `chapterTreeOrder`，两个 order 都要更新。
+3. 特效/分支合并必须按原顺序 merge，禁止 `preserved + new_blocks`。
+4. 多实例并发写会坏 project.json → 用一键脚本 + 锁 + 原子写。

@@ -1,0 +1,28 @@
+{
+  "projectId": "demo-youbao",
+  "letsgalDir": "E:\\GamePro\\test",
+  "chapters": {
+    "ch-01": {
+      "chapterName": "序章",
+      "chapterFile": "chapters/序章.json",
+      "fragmentName": "main",
+      "beats": {
+        "b01": "b01",
+        "b02": "b02",
+        "b03": "b03",
+        "b04": "b04",
+        "b05": "b05",
+        "b06": "b06",
+        "b07": "b07",
+        "b08": "b08",
+        "b09": "b09",
+        "6dd9b6ba-1a2e-4d63-ac6f-ee05a413750d": "6dd9b6ba-1a2e-4d63-ac6f-ee05a413750d",
+        "3d86cb6f701b4fee9c2a71fb81c9aecf": "e3a64712-d480-41ae-a5a8-2b40f370a8f2",
+        "e8b21a18ed784b088efca94801ab420b": "8b847041-7ec3-44c2-b4cc-395f5646bd6c",
+        "1800e20aa6044fca9de3144b00d72db5": "ba95a2ba-d099-47ab-9c6c-fe5dac15573b",
+        "2d4b8d0f1e834e47b3edb60b3c73d96b": "6b3ac96a-06ac-4583-9954-45956527e78c",
+        "5ce51ce8f30240049f0366b82c890dd7": "d7a80a90-7d5d-4f72-b709-0dc832d72788"
+      }
+    }
+  }
+}

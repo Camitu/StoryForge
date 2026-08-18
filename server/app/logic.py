@@ -1,68 +1,35 @@
-"""核心逻辑：叙事状态快照计算 + 一致性检查（机械校验）。"""
+"""核心逻辑（v3）：一致性检查（机械校验）。
+
+- 章节结构：chapterOrder 一致性、大章节/小章节引用。
+- 角色引用：小章节行引用的角色必须在人设中定义。
+- 场景引用：小章节行引用的场景必须在场景列表中。
+- 伏笔：未回收伏笔提醒；回收位置指向存在的行。
+- 人设删除检查：角色是否被章节行引用（供删除前校验）。
+"""
 from typing import List, Optional
 
-from .models import CharacterState, Project, StateDelta, WorldState
+from .models import Chapter, Project, ScriptLine, SubChapter
 
 
-def _base_state(project: Project) -> WorldState:
-    char_states = {}
-    for c in project.characters:
-        char_states[c.id] = CharacterState(
-            characterId=c.id,
-            attributeValues=dict(c.attributeValues or {}),
-        )
-    return WorldState(
-        atTime="",
-        characterStates=char_states,
-        flags=dict(project.variables or {}),
-        openForeshadows=[],
-    )
-
-
-def _apply_delta(state: WorldState, delta: StateDelta) -> None:
-    for cid, cs in delta.characterStateChanges.items():
-        state.characterStates[cid] = cs
-    for k, v in delta.flagChanges.items():
-        state.flags[k] = v
-    for fs in delta.foreshadowsPlanted:
-        fs.status = "open"
-        state.openForeshadows.append(fs)
-    resolved = set(delta.foreshadowsResolved)
-    if resolved:
-        state.openForeshadows = [
-            f for f in state.openForeshadows if f.id not in resolved
-        ]
-
-
-def _walk_sections(project: Project):
-    """按 chapterOrder 顺序遍历 (chapter, section)。"""
+def _iter_lines(project: Project):
+    """按 chapterOrder 顺序遍历 (chapter, subchapter, line)。"""
     chapter_map = {c.id: c for c in project.chapters}
     for cid in project.chapterOrder:
         chapter = chapter_map.get(cid)
         if chapter is None:
             continue
         for sub in chapter.subChapters:
-            for section in sub.sections:
-                yield chapter, section
+            for line in sub.lines:
+                yield chapter, sub, line
 
 
-def compute_context(project: Project, at: Optional[str] = None) -> WorldState:
-    """计算叙事世界状态快照（WorldState）。
-
-    - at 省略：返回最终状态（走完全部章节）。
-    - at = sectionId：返回「应用完该节（含）之后」的状态。
-    """
-    state = _base_state(project)
-    for _chapter, section in _walk_sections(project):
-        if section.condense is not None:
-            _apply_delta(state, section.condense)
-        for fs in section.foreshadows:
-            if fs.status == "open":
-                state.openForeshadows.append(fs)
-        state.atTime = section.time
-        if at is not None and section.id == at:
-            return state
-    return state
+def character_references(project: Project, character_id: str) -> List[str]:
+    """返回引用指定角色的位置描述列表（删除人设前检查）。"""
+    refs = []
+    for chapter, sub, line in _iter_lines(project):
+        if getattr(line, "characterId", None) == character_id:
+            refs.append(f"{chapter.name}/{sub.name}")
+    return refs
 
 
 def check_project(project: Project) -> dict:
@@ -71,9 +38,7 @@ def check_project(project: Project) -> dict:
     char_ids = {c.id for c in project.characters}
     scene_ids = {s.id for s in project.scenes}
     chapter_ids = {c.id for c in project.chapters}
-    section_ids = {s.id for c in project.chapters for sc in c.subChapters for s in sc.sections}
-    beat_ids = set()
-    anchor_beat_ids = set()
+    subchapter_ids = {sc.id for c in project.chapters for sc in c.subChapters}
 
     # chapterOrder 一致性
     for cid in project.chapterOrder:
@@ -83,41 +48,54 @@ def check_project(project: Project) -> dict:
         if cid not in project.chapterOrder:
             issues.append(f"章节未出现在 chapterOrder: {cid}")
 
+    # 小章节名唯一性（= LetsGal 章节名，必须唯一）
+    seen_names = {}
+    for c in project.chapters:
+        for sc in c.subChapters:
+            if sc.name in seen_names:
+                issues.append(f"小章节名重复（LetsGal 章节名必须唯一）: {sc.name}")
+            seen_names[sc.name] = sc.id
+
+    # 场景名唯一性
+    seen_scene_names = {}
+    for s in project.scenes:
+        if s.name in seen_scene_names:
+            issues.append(f"场景名重复: {s.name}")
+        seen_scene_names[s.name] = s.id
+
+    # 行引用检查
     open_fs = []
-    for chapter, section in _walk_sections(project):
-        for beat in section.beats:
-            if beat.id:
-                beat_ids.add(beat.id)
-            if beat.kind == "dialogue":
-                if beat.characterId and beat.characterId not in char_ids:
-                    issues.append(f"[{chapter.name}/{section.name}] 对白引用未定义角色: {beat.characterId}")
-                if beat.sceneId and beat.sceneId not in scene_ids:
-                    issues.append(f"[{chapter.name}/{section.name}] 对白引用未定义场景: {beat.sceneId}")
-            elif beat.kind == "scene":
-                if beat.sceneId not in scene_ids:
-                    issues.append(f"[{chapter.name}/{section.name}] 切场景引用未定义场景: {beat.sceneId}")
-            elif beat.kind == "character":
-                if beat.characterId not in char_ids:
-                    issues.append(f"[{chapter.name}/{section.name}] 引用未定义角色: {beat.characterId}")
-            elif beat.kind == "choice":
-                for opt in beat.options:
-                    if opt.target not in section_ids:
-                        issues.append(f"[{chapter.name}/{section.name}] 分支跳转目标不存在: {opt.target}")
-            elif beat.kind == "jump":
-                if beat.target not in section_ids:
-                    issues.append(f"[{chapter.name}/{section.name}] 跳转目标不存在: {beat.target}")
+    for chapter, sub, line in _iter_lines(project):
+        loc = f"[{chapter.name}/{sub.name}]"
+        if line.kind == "dialogue":
+            if line.characterId and line.characterId not in char_ids:
+                issues.append(f"{loc} 对白引用未定义角色: {line.characterId}")
+            if line.sceneId and line.sceneId not in scene_ids:
+                issues.append(f"{loc} 对白引用未定义场景: {line.sceneId}")
+        elif line.kind == "scene":
+            if line.sceneId not in scene_ids:
+                issues.append(f"{loc} 切场景引用未定义场景: {line.sceneId}")
+        elif line.kind == "narration":
+            if line.sceneId and line.sceneId not in scene_ids:
+                issues.append(f"{loc} 旁白引用未定义场景: {line.sceneId}")
 
-        for fs in section.foreshadows:
-            if fs.status == "open":
-                open_fs.append(fs)
-        for anc in section.anchors:
-            anchor_beat_ids.add(anc.beatId)
+    # 伏笔检查
+    for fs in project.foreshadows:
+        if fs.status == "open":
+            open_fs.append(fs.content)
+        if fs.resolvedAt and fs.resolvedAt.subChapterId not in subchapter_ids:
+            issues.append(f"伏笔回收位置指向不存在的小章节: {fs.resolvedAt.subChapterId}")
 
-    for fs in open_fs:
-        issues.append(f"未回收伏笔: {fs.content}")
-
-    for bid in anchor_beat_ids:
-        if bid not in beat_ids:
-            issues.append(f"锚点指向不存在的 beat: {bid}")
+    for content in open_fs:
+        issues.append(f"未回收伏笔: {content}")
 
     return {"ok": len(issues) == 0, "issue_count": len(issues), "issues": issues}
+
+
+def get_subchapter(project: Project, subchapter_id: str):
+    """查找小章节，返回 (chapter, subchapter) 或 None。"""
+    for chapter in project.chapters:
+        for sub in chapter.subChapters:
+            if sub.id == subchapter_id:
+                return chapter, sub
+    return None

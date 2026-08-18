@@ -1,21 +1,15 @@
 /**
- * 场景系统：场景 = 多层视差图层（每层带 depth）。
+ * 场景系统（v3，简化）。
+ *
+ * 场景名称唯一（牵扯到后续素材资产），无则新建，写作时从列表选择。
  */
 import type { EntityId } from './ids';
-
-/** 场景图层 */
-export interface SceneLayer {
-  id: EntityId;
-  name: string;
-  /** 图片路径（相对 assets） */
-  assetPath: string;
-  /** 视差深度：越小越远（远景层 depth 大，前景层 depth 小） */
-  distance: number;
-}
 
 /** 场景 */
 export interface Scene {
   id: EntityId;
+  /** 场景名称（唯一） */
   name: string;
-  layers: SceneLayer[];
+  /** 备注（可选） */
+  note?: string;
 }

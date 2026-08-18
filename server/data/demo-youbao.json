@@ -45,7 +45,7 @@
                   "time": "午后",
                   "characterId": "char-youbao",
                   "expression": "正面站立",
-                  "text": "这里就是我们的客厅啦。"
+                  "text": "（在LetsGal里改过的对白）"
                 },
                 {
                   "id": "b03",
@@ -91,7 +91,7 @@
                   "id": "b08",
                   "kind": "narration",
                   "time": "夜晚",
-                  "text": "夜幕降临，三人回到了家。"
+                  "text": "夜幕降临，三人回到了·家。修改的内容[wait=500]"
                 },
                 {
                   "id": "b09",
@@ -100,6 +100,44 @@
                   "characterId": "char-muxue",
                   "expression": "脸红慌张",
                   "text": "今天玩得……真开心。"
+                },
+                {
+                  "id": "6dd9b6ba-1a2e-4d63-ac6f-ee05a413750d",
+                  "kind": "dialogue",
+                  "time": "午后",
+                  "characterId": "char-youbao",
+                  "expression": "正面站立",
+                  "text": "好吧就是这样"
+                },
+                {
+                  "id": "3d86cb6f701b4fee9c2a71fb81c9aecf",
+                  "kind": "scene",
+                  "time": "",
+                  "sceneId": "scn-livingroom"
+                },
+                {
+                  "id": "e8b21a18ed784b088efca94801ab420b",
+                  "kind": "narration",
+                  "time": "",
+                  "text": "新增一条记录把"
+                },
+                {
+                  "id": "1800e20aa6044fca9de3144b00d72db5",
+                  "kind": "narration",
+                  "time": "",
+                  "text": "结束序章"
+                },
+                {
+                  "id": "2d4b8d0f1e834e47b3edb60b3c73d96b",
+                  "kind": "narration",
+                  "time": "",
+                  "text": "这里是路线B的分支"
+                },
+                {
+                  "id": "5ce51ce8f30240049f0366b82c890dd7",
+                  "kind": "narration",
+                  "time": "",
+                  "text": "这里是路线A的分支"
                 }
               ]
             }

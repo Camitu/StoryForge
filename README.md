@@ -1,98 +1,74 @@
 # StoryForge
 
-> 故事锻造工坊 —— 与 AI 协作的 Galgame 实时开发生产引擎。
+> 故事锻造工坊 —— **LetsGal 的上游剧情写作与 AI 协作工具**。
 
-一套 **可视化剧本写作流水线 / 生产管理引擎**。Galgame 是首个落地场景，核心写作层设计为通用型，可复用于 RPG、AI 影视、动漫脚本。
+StoryForge 专注 **游戏剧情写作本身**：章节管理、AI 协作写作、剧情浓缩、伏笔回收、一致性检查、资产占位声明。
+演出编排（BGM/音效/动画/转场）、素材资产管理、实时预览、打包发布，全部交给 **LetsGal** 完成。
 
-**一句话定位**：让 AI 在「上下文极其有限」的前提下，也能写出全局统一、伏笔回收、不跑偏的几十万字剧情。
+**一句话定位**：StoryForge 解决「LetsGal 不方便写长篇剧情」的问题；LetsGal 解决「演出、素材、预览、打包」的问题。
 
 ---
 
-## 核心设计
+## 为什么这么做
 
-**叙事状态压缩（Narrative State Diff）** 是全系统的灵魂：
+- LetsGal 已具备：资产管理、实时预览、打包、演出编排（摄像机/粒子/转场/音频）。
+- LetsGal 的短板：**没有面向长篇剧情写作的管理界面**（章节树/标准写作行/自由写作、AI 协作、浓缩）。
+- 自研运行时（PixiJS）实测效果不佳、维护成本高 → 放弃。
 
-> 时间线 + 人物状态 + 未回收伏笔 + 各节点浓缩 = 一个可随时「快照」的叙事世界状态。
+## 分工
 
-AI 写任何一个小节，只需「当前世界状态快照 + 该小节附近锚点」，不必读几十万字全文。
-
-## 三大支柱
-
-1. **可视化剧情脚本创作 / 章节管理 / 分支管理**（通用写作层）
-2. **ComfyUI 素材创作 + 资产库绑定**（素材需求清单驱动）
-3. **在线实时预览 + 调试**（自建轻量运行时）
-
-## 权威存储格式
-
-- **Galgame**：结构化 beat 作为权威存储；Markdown 仅作「视图」。
-- **通用写作**：自由 Markdown + 可选模板。
-
-```
-beat = {时间, 场景, 角色, 表情, 对白, 立绘, 头像, CG, 旁白}
-```
-
-## 技术栈
-
-| 层 | 选型 |
+| 能力 | 归属 |
 |---|---|
-| 语言 | TypeScript（编辑器 + 运行时）+ Python（项目服务） |
-| 编辑器 UI | React 18 + zustand + React Flow + dnd-kit |
-| 游戏运行时 | Pixi.js 7 + pixi-filters + howler + tween.js |
-| 桌面打包 | Electron + electron-builder（另支持 web 导出） |
-| 项目服务 / AI API | FastAPI + SQLite（本地 HTTP） |
-| 权威存储 | JSON 工程文件（git 友好） |
+| 章节结构管理（大章节/小章节/子片段） | StoryForge |
+| AI 协作写作（续写/扩写/浓缩） | StoryForge |
+| 剧情浓缩（StateDelta/WorldState） | StoryForge |
+| 伏笔登记/回收/一致性检查 | StoryForge |
+| 资产占位声明（角色/场景/立绘/背景） | StoryForge |
+| 素材文件管理/导入 | LetsGal |
+| 演出编排（BGM/SFX/动画/转场/摄像机） | LetsGal |
+| 实时预览/热重载 | LetsGal |
+| 打包发布 | LetsGal |
+
+## 同步链路
+
+```
+StoryForge（上游写作）
+   │  导出剧本 JSON
+   ▼
+Sync Bridge（符号对齐 + 编译）
+   │  写 chapters/*.json + characters.json + scenes.json + manifest
+   ▼
+LetsGal Studio（热重载 → 实时预览）
+```
+
+- 角色/场景/立绘/背景缺失时，Sync Bridge 自动创建**占位资产**，保证新剧情能跑通。
+- 反向同步（LetsGal 人工演出调整回上游）**暂不做**，避免覆盖人工成果。
 
 ## 目录结构
 
 ```
 StoryForge/
-├── docs/       # 方案文档（PLAN.md 为最终方案）
-├── shared/     # 共享 TS 类型：beat 模型、block 定义
-├── server/     # FastAPI + SQLite（AI 协作 API + beat 数据层）
-├── editor/     # React 18 + Vite + TS（可视化脚本编辑器）
-└── runtime/    # Pixi.js 7（Galgame 运行时 / 播放器）
+├── docs/          # PLAN-v2.md（新方案）/ ARCHITECTURE.md / PROGRESS.md
+├── shared/        # TS 数据模型（聚焦剧情）
+├── server/        # FastAPI：工程存储 + AI 协作 API（:8790）
+├── editor/        # React 写作编辑器（:5173）
+└── sync_bridge/   # （规划）StoryForge → LetsGal 同步编译层
 ```
 
-## 快速开始
+## 快速开始（开发）
 
-### 服务端（AI 协作 API，端口 8790）
+推荐在 **Windows 主机** 运行：
 
-```bash
-cd server
-python -m venv .venv
-.venv\Scripts\pip install -r requirements.txt
-.venv\Scripts\python -m uvicorn app.main:app --port 8790
-# 冒烟测试
-.venv\Scripts\python smoke_test.py
+```bat
+cd /d E:\Apps\StoryForge
+start-dev-windows.bat
 ```
 
-### 编辑器
+- Server: http://127.0.0.1:8790/docs
+- Editor: http://127.0.0.1:5173
 
-```bash
-cd editor
-npm install
-npm run dev
-```
+## 文档
 
-### 播放器
-
-```bash
-cd runtime
-npm install
-npm run dev
-```
-
-## 路线图
-
-- **P0（纵向切片）**：结构化 beat 模型 + 章节/时间线/人物/伏笔 + 锚点 + 浓缩 + 本地 AI API + 最简对话播放器。
-- **P1**：资产库 + ComfyUI 接入 + 批量生成素材。
-- **P2**：完整预览/调试运行时（点击播放/改表情/换场景/插音效/转场）。
-- **P3**：路线分支图、打包发布、UI 定制。
-
-> 完整方案见 [`docs/PLAN.md`](docs/PLAN.md)，或在 MemoVault 知识库中查看条目《AI-Galgame 实时开发生产引擎 — 最终方案》（id 63）。
-
-## 文档索引
-
-- [`docs/PLAN.md`](docs/PLAN.md) —— 最终方案（设计共识）
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) —— 技术架构 / 数据模型 / 数据流 / API
-- [`docs/PROGRESS.md`](docs/PROGRESS.md) —— 进度 / 待办 / 启动方式（**续接开发先读这个**）
+- [`docs/PLAN-v2.md`](docs/PLAN-v2.md) —— v2 新方案（定稿）
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) —— 技术架构（待更新）
+- [`docs/PROGRESS.md`](docs/PROGRESS.md) —— 进度（待更新）

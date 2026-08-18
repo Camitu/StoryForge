@@ -1,258 +1,118 @@
-"""Pydantic 数据模型 —— 与 @storyforge/shared 的 TS 类型一一对应。
+"""Pydantic 数据模型 —— 与 @storyforge/shared 的 TS 类型一一对应（v3）。
 
-字段名使用 camelCase，保证 JSON 契约在 TS（编辑器/运行时）与 Python（服务）之间完全一致。
+字段名使用 camelCase，保证 JSON 契约在 TS（编辑器）与 Python（服务）之间完全一致。
 """
 from typing import Annotated, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
 # 基础标量
 EntityId = str
-StoryTime = str
+StoryDate = str
 
 
-class BeatBase(BaseModel):
-    """所有 beat 共有的字段"""
-    id: Optional[EntityId] = None
+# ---------- 标准写作行 ----------
+class ScriptLineBase(BaseModel):
+    id: EntityId
+    kind: Literal["dialogue", "narration", "scene"]
 
 
-# ---------- beat ----------
-class DialogueBeat(BeatBase):
+class DialogueLine(ScriptLineBase):
     kind: Literal["dialogue"] = "dialogue"
-    time: StoryTime
     characterId: EntityId
-    expression: str = ""
-    text: str
-    sprite: Optional[str] = None
-    avatar: Optional[str] = None
-    sceneId: Optional[EntityId] = None
-    cg: Optional[str] = None
-    anchorId: Optional[EntityId] = None
-
-
-class NarrationBeat(BeatBase):
-    kind: Literal["narration"] = "narration"
-    time: StoryTime
-    text: str
-    sceneId: Optional[EntityId] = None
-
-
-class SceneBeat(BeatBase):
-    kind: Literal["scene"] = "scene"
-    time: StoryTime
-    sceneId: EntityId
-    transition: Optional[Literal["cut", "fade", "cover"]] = None
-    durationMs: Optional[int] = None
-
-
-class CharacterBeat(BeatBase):
-    kind: Literal["character"] = "character"
-    time: StoryTime
-    characterId: EntityId
-    op: Literal["show", "hide", "expression"]
+    characterName: Optional[str] = None
     expression: Optional[str] = None
-    sprite: Optional[str] = None
-    position: Optional[str] = None
-
-
-class BgmBeat(BeatBase):
-    kind: Literal["bgm"] = "bgm"
-    time: StoryTime
-    op: Literal["play", "stop"]
-    uri: Optional[str] = None
-    loop: Optional[bool] = None
-    volume: Optional[int] = None
-
-
-class SfxBeat(BeatBase):
-    kind: Literal["sfx"] = "sfx"
-    time: StoryTime
-    uri: str
-    volume: Optional[int] = None
-
-
-class ChoiceOption(BaseModel):
     text: str
-    target: EntityId
-    condition: Optional[str] = None
+    sceneId: Optional[EntityId] = None
+    sceneName: Optional[str] = None
 
 
-class ChoiceBeat(BeatBase):
-    kind: Literal["choice"] = "choice"
-    time: StoryTime
-    options: List[ChoiceOption]
+class NarrationLine(ScriptLineBase):
+    kind: Literal["narration"] = "narration"
+    text: str
+    sceneId: Optional[EntityId] = None
+    sceneName: Optional[str] = None
 
 
-class JumpBeat(BeatBase):
-    kind: Literal["jump"] = "jump"
-    target: EntityId
+class SceneLine(ScriptLineBase):
+    kind: Literal["scene"] = "scene"
+    sceneId: EntityId
+    sceneName: Optional[str] = None
 
 
-class CurtainBeat(BeatBase):
-    kind: Literal["curtain"] = "curtain"
-    op: Literal["open", "close"]
-    durationMs: Optional[int] = None
-    color: Optional[str] = None
-
-
-class EndBeat(BeatBase):
-    kind: Literal["end"] = "end"
-    endingId: Optional[EntityId] = None
-
-
-Beat = Annotated[
-    Union[
-        DialogueBeat,
-        NarrationBeat,
-        SceneBeat,
-        CharacterBeat,
-        BgmBeat,
-        SfxBeat,
-        ChoiceBeat,
-        JumpBeat,
-        CurtainBeat,
-        EndBeat,
-    ],
+ScriptLine = Annotated[
+    Union[DialogueLine, NarrationLine, SceneLine],
     Field(discriminator="kind"),
 ]
 
 
-class Anchor(BaseModel):
-    id: EntityId
-    beatId: EntityId
-    kind: Literal["dialogue", "plot-point", "foreshadow", "ending"]
-    note: Optional[str] = None
-
-
-# ---------- character ----------
-class AvatarCrop(BaseModel):
-    x: float
-    y: float
-    w: float
-    h: float
-
-
-class ExpressionDef(BaseModel):
-    name: str
-    assetPath: str
-    avatarCrop: Optional[AvatarCrop] = None
-
-
-class Position(BaseModel):
-    id: str
-    name: str
-    left: float
-    top: float
+# ---------- 人设 ----------
+class CharacterTimelinePoint(BaseModel):
+    date: StoryDate
+    content: str
 
 
 class Character(BaseModel):
     id: EntityId
     name: str
     note: Optional[str] = None
-    expressions: List[ExpressionDef] = []
-    defaultPositionId: Optional[str] = None
-    avatarCrop: Optional[AvatarCrop] = None
-    attributeValues: Dict[str, Union[int, float, str, bool]] = {}
-    themeColor: Optional[Dict[str, str]] = None
+    baseSetting: Optional[str] = None
+    imagePath: Optional[str] = None
+    plotTimeline: List[CharacterTimelinePoint] = []
 
 
-class CharacterState(BaseModel):
-    characterId: EntityId
-    relationStates: Dict[str, str] = {}
-    traitState: Optional[str] = None
-    attributeValues: Dict[str, Union[int, float, str, bool]] = {}
-    sinceTime: Optional[str] = None
-
-
-# ---------- scene ----------
-class SceneLayer(BaseModel):
-    id: EntityId
-    name: str
-    assetPath: str
-    distance: float
-
-
+# ---------- 场景 ----------
 class Scene(BaseModel):
     id: EntityId
     name: str
-    layers: List[SceneLayer] = []
+    note: Optional[str] = None
 
 
-# ---------- foreshadow ----------
-class BeatRef(BaseModel):
-    chapterId: EntityId
-    sectionId: EntityId
-    beatId: Optional[EntityId] = None
+# ---------- 伏笔 ----------
+class LineRef(BaseModel):
+    subChapterId: EntityId
+    lineId: Optional[EntityId] = None
 
 
 class Foreshadow(BaseModel):
     id: EntityId
     content: str
-    plantedAt: Optional[BeatRef] = None
-    resolvedAt: Optional[BeatRef] = None
+    plantedAt: LineRef
+    plantedDate: Optional[str] = None
     status: Literal["open", "resolved"] = "open"
+    resolvedAt: Optional[LineRef] = None
+    resolvedDate: Optional[str] = None
     resolutionNote: Optional[str] = None
-    tags: List[str] = []
 
 
-# ---------- state ----------
-class WorldState(BaseModel):
-    atTime: str
-    characterStates: Dict[str, CharacterState] = {}
-    flags: Dict[str, Union[str, int, float, bool]] = {}
-    openForeshadows: List[Foreshadow] = []
-    worldNotes: Optional[str] = None
-
-
-class StateDelta(BaseModel):
-    sectionId: EntityId
-    characterStateChanges: Dict[str, CharacterState] = {}
-    flagChanges: Dict[str, Union[str, int, float, bool]] = {}
-    foreshadowsPlanted: List[Foreshadow] = []
-    foreshadowsResolved: List[EntityId] = []
-    summary: str
-    keyPoints: List[str] = []
-    tags: List[str] = []
-
-
-# ---------- asset ----------
-class AssetBinding(BaseModel):
-    entityType: str
-    entityId: EntityId
-    role: str
-
-
-class Asset(BaseModel):
+# ---------- 章节内片段 ----------
+class ExternalBlock(BaseModel):
     id: EntityId
-    type: Literal["sprite", "avatar", "cg", "background", "bgm", "sfx", "ui"]
-    path: str
-    bindings: List[AssetBinding] = []
-    refCount: Optional[int] = None
-    ready: bool = False
+    type: str
+    label: str
+    afterLineIndex: int = 0
 
 
-# ---------- project ----------
-class Resolution(BaseModel):
-    width: int
-    height: int
-
-
-class Section(BaseModel):
+class SubFragment(BaseModel):
     id: EntityId
     name: str
-    time: StoryTime
-    summary: str = ""
-    condense: Optional[StateDelta] = None
-    foreshadows: List[Foreshadow] = []
-    anchors: List[Anchor] = []
-    tags: List[str] = []
-    beats: List[Beat] = []
+    lines: List[ScriptLine] = []
+    externalBlocks: List[ExternalBlock] = []
+    freeText: str = ""
 
 
+# ---------- 章节 ----------
 class SubChapter(BaseModel):
     id: EntityId
     name: str
-    summary: Optional[str] = None
-    sections: List[Section] = []
+    date: StoryDate = ""
+    summary: str = ""
+    tags: List[str] = []
+    condense: str = ""
+    mode: Literal["standard", "free"] = "standard"
+    freeText: str = ""
+    lines: List[ScriptLine] = []
+    externalBlocks: List[ExternalBlock] = []
+    fragments: List[SubFragment] = []
 
 
 class Chapter(BaseModel):
@@ -262,14 +122,16 @@ class Chapter(BaseModel):
     subChapters: List[SubChapter] = []
 
 
+# ---------- 工程 ----------
 class Project(BaseModel):
     id: Optional[EntityId] = None
     name: str
-    version: str = "0.1.0"
-    resolution: Resolution = Resolution(width=1920, height=1080)
-    chapterOrder: List[EntityId] = []
-    chapters: List[Chapter] = []
+    version: str = "0.3.0"
+    storageDir: Optional[str] = None
+    worldview: str = ""
     characters: List[Character] = []
     scenes: List[Scene] = []
-    variables: Dict[str, Union[str, int, float, bool]] = {}
-    assets: List[Asset] = []
+    chapterOrder: List[EntityId] = []
+    chapters: List[Chapter] = []
+    foreshadows: List[Foreshadow] = []
+    extra: Optional[Dict[str, object]] = None
