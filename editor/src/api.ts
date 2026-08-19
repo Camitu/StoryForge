@@ -34,6 +34,33 @@ export async function createProject(name: string, storageDir?: string): Promise<
   return res.json()
 }
 
+/** 弹出系统目录选择框，返回所选路径（取消返回 null） */
+export async function chooseDirectory(): Promise<string | null> {
+  const res = await fetch(`${API_BASE}/api/projects/choose-directory`, { method: 'POST' })
+  if (!res.ok) throw new Error(`选择目录失败: ${res.status}`)
+  const d = await res.json()
+  return d.path ?? null
+}
+
+// ---------- 文件系统浏览（全屏文件夹选择器） ----------
+
+export interface FsListResult {
+  path: string
+  parent: string | null
+  drives: string[]
+  dirs: string[]
+}
+
+export async function fsList(path?: string): Promise<FsListResult> {
+  const q = path ? `?path=${encodeURIComponent(path)}` : ''
+  const res = await fetch(`${API_BASE}/api/fs/list${q}`)
+  if (!res.ok) {
+    const d = await res.json().catch(() => null)
+    throw new Error(d?.detail ?? `读取目录失败: ${res.status}`)
+  }
+  return res.json()
+}
+
 export async function saveProject(project: Project): Promise<Project> {
   const res = await fetch(`${API_BASE}/api/projects/${project.id}`, {
     method: 'PUT',
@@ -91,6 +118,39 @@ export async function updateCharacter(pid: string, cid: string, data: Partial<Ch
   return res.json()
 }
 
+export interface CharacterExpressionStat {
+  expression: string
+  count: number
+}
+
+export interface CharacterExpressionsResult {
+  characterId: string
+  characterName: string
+  expressions: CharacterExpressionStat[]
+  total: number
+}
+
+/** 角色已使用的表情差分统计（按次数降序） */
+export async function listCharacterExpressions(pid: string, cid: string): Promise<CharacterExpressionsResult> {
+  const res = await fetch(`${API_BASE}/api/projects/${pid}/characters/${cid}/expressions`)
+  if (!res.ok) throw new Error(`读取表情差分失败: ${res.status}`)
+  return res.json()
+}
+
+/** 批量替换该角色全部剧情中的表情 from → to（to 为空 = 清除表情） */
+export async function replaceCharacterExpression(
+  pid: string, cid: string, from: string, to: string,
+): Promise<{ replaced: number }> {
+  const res = await fetch(`${API_BASE}/api/projects/${pid}/characters/${cid}/expressions/replace`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to }),
+  })
+  if (!res.ok) {
+    const d = await res.json().catch(() => null)
+    throw new Error(d?.detail ?? `批量替换失败: ${res.status}`)
+  }
+  return res.json()
+}
 export async function deleteCharacter(pid: string, cid: string): Promise<void> {
   const res = await fetch(`${API_BASE}/api/projects/${pid}/characters/${cid}`, { method: 'DELETE' })
   if (!res.ok) {
@@ -114,17 +174,17 @@ export async function listScenes(pid: string): Promise<Scene[]> {
   return res.json()
 }
 
-export async function createScene(pid: string, name: string, note?: string): Promise<Scene> {
+export async function createScene(pid: string, name: string, note?: string, imagePath?: string): Promise<Scene> {
   const res = await fetch(`${API_BASE}/api/projects/${pid}/scenes`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, note }),
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, note, imagePath }),
   })
   if (!res.ok) throw new Error(`新建场景失败: ${res.status}`)
   return res.json()
 }
 
-export async function updateScene(pid: string, sid: string, name: string, note?: string): Promise<Scene> {
+export async function updateScene(pid: string, sid: string, name: string, note?: string, imagePath?: string): Promise<Scene> {
   const res = await fetch(`${API_BASE}/api/projects/${pid}/scenes/${sid}`, {
-    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, note }),
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, note, imagePath }),
   })
   if (!res.ok) throw new Error(`保存场景失败: ${res.status}`)
   return res.json()
@@ -235,6 +295,8 @@ export interface LineIn {
   text?: string
   sceneId?: string
   sceneName?: string
+  /** 仅新建行：插入到该行 id 之后（Enter 续行；缺省追加末尾） */
+  afterId?: string
 }
 
 export async function addLine(pid: string, sid: string, data: LineIn): Promise<ScriptLine> {
@@ -365,7 +427,10 @@ export async function deleteForeshadow(pid: string, fid: string): Promise<void> 
 // ---------- 搜索 ----------
 
 export interface SearchResult {
-  subChapterId: string
+  /** 结果类型：chapter（章节正文，可跳转）/ worldview / character / scene / foreshadow */
+  scope: 'chapter' | 'worldview' | 'character' | 'scene' | 'foreshadow'
+  /** 命中章节 id；非 chapter 类型为 null（不可跳转） */
+  subChapterId: string | null
   chapterName: string
   subChapterName: string
   date: string

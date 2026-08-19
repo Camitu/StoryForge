@@ -31,3 +31,14 @@ release/
 projects/
 media/
 thumbnails/
+
+# StoryForge 运行时数据（server/data 下除 demo 外的项目文件/锁/损坏备份/资产）
+server/data/*.lock
+server/data/*.tmp
+server/data/*.bak-*
+server/data/*.json
+server/data/*.sync.json
+server/data/*/
+!server/data/demo-youbao.json
+!server/data/demo-youbao.sync.json
+!server/data/.gitkeep

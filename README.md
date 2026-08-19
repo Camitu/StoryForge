@@ -69,6 +69,9 @@ start-dev-windows.bat
 
 ## 文档
 
-- [`docs/PLAN-v2.md`](docs/PLAN-v2.md) —— v2 新方案（定稿）
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) —— 技术架构（待更新）
-- [`docs/PROGRESS.md`](docs/PROGRESS.md) —— 进度（待更新）
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) —— 技术架构
+- [`docs/API.md`](docs/API.md) —— 完整 API 文档（供 AI 调用，无需读源码）
+- [`docs/AI-WORKFLOW.md`](docs/AI-WORKFLOW.md) —— AI 写作工作流手册（分场景 SOP / 红线 / 质量门禁）
+- [`docs/AI-PROMPTS.md`](docs/AI-PROMPTS.md) —— AI 协作 system prompt 模板（可粘贴给任意 LLM）
+- [`docs/PROGRESS.md`](docs/PROGRESS.md) —— 进度
+- [`docs/SYNC-MAPPING.md`](docs/SYNC-MAPPING.md) —— 同步数据对应关系

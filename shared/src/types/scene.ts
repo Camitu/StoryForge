@@ -12,4 +12,6 @@ export interface Scene {
   name: string;
   /** 备注（可选） */
   note?: string;
+  /** 场景形象图路径（可选，16:9 卡片预览用） */
+  imagePath?: string;
 }

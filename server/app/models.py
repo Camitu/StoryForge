@@ -65,6 +65,7 @@ class Scene(BaseModel):
     id: EntityId
     name: str
     note: Optional[str] = None
+    imagePath: Optional[str] = None
 
 
 # ---------- 伏笔 ----------

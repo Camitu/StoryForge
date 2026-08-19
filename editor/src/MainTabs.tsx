@@ -6,6 +6,7 @@ import { WritingTab } from './tabs/WritingTab'
 import { ForeshadowTab } from './tabs/ForeshadowTab'
 import { TimelineTab } from './tabs/TimelineTab'
 import { SyncTab } from './tabs/SyncTab'
+import { toast } from './ui/toast'
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'world', label: '人设世界观' },
@@ -18,7 +19,7 @@ const TABS: { id: TabId; label: string }[] = [
 const THEME_KEY = 'storyforge-theme'
 
 export function MainTabs() {
-  const { project, tab, setTab, closeProject } = useEditorStore()
+  const { project, tab, setTab, closeProject, requestSave } = useEditorStore()
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem(THEME_KEY)
     return saved === 'light' ? 'light' : 'dark'
@@ -30,6 +31,19 @@ export function MainTabs() {
   }, [theme])
 
   const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'))
+
+  // 全局 Ctrl+S：触发各编辑器立即保存（拦截浏览器默认）
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault()
+        requestSave()
+        toast('已保存 ✓', 'success')
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [requestSave])
 
   return (
     <div className="main-tabs">

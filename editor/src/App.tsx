@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useEditorStore } from './store'
 import { ProjectSelect } from './ProjectSelect'
 import { MainTabs } from './MainTabs'
+import { DialogHost } from './ui/DialogHost'
+import { ToastHost } from './ui/ToastHost'
 
 const THEME_KEY = 'storyforge-theme'
 
@@ -39,9 +41,17 @@ export default function App() {
           {theme === 'light' ? '🌙' : '☀️'}
         </button>
         <ProjectSelect projects={projects} onOpen={openProject} />
+        <DialogHost />
+        <ToastHost />
       </>
     )
   }
 
-  return <MainTabs />
+  return (
+    <>
+      <MainTabs />
+      <DialogHost />
+      <ToastHost />
+    </>
+  )
 }

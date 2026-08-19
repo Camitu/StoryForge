@@ -51,26 +51,33 @@ Project（工程）
 - **写入安全**：`_atomic_write_text` = 跨进程文件锁（msvcrt）+ 临时文件 + `os.replace`，防止多实例并发写坏文件。
 - 同步映射：`server/data/{project_id}.sync.json`（详见 SYNC-MAPPING.md）。
 
-## 5. API 概览（server/app/routers/ai.py）
+## 5. API 概览（server/app/routers/）
 
-全部可读写，供 AI 调用：
+**完整调用文档见 [docs/API.md](API.md)（AI 协作调用无需读源码）。
+AI 写作工作流见 [docs/AI-WORKFLOW.md](AI-WORKFLOW.md)，提示词模板见 [docs/AI-PROMPTS.md](AI-PROMPTS.md)。**
 
-- 工程 CRUD（name + storageDir）、世界观
-- 人设 CRUD（删除前引用检查 409）、场景 CRUD
+全部可读写，供 AI 调用（路径前缀 `/api/projects/{project_id}`）：
+
+- 工程 CRUD（name + storageDir，默认 `StoryForge/projects/<项目名>`）、`/overview` 项目概览、`/condense` 浓缩剧情时间线（AI 快速掌握剧情走向）
+- 世界观读写；人设 CRUD（删除前引用检查 409）+ 单个角色查询 + **表情差分统计/批量替换**；场景 CRUD（含 imagePath）+ 单个场景查询
 - 大章节 CRUD + 排序；小章节 CRUD + 排序 + 跨大章节移动
-- 行 CRUD + 排序；子片段 CRUD + 片段行 CRUD + 排序
+- 行 CRUD + 排序；子片段 CRUD + 片段行 CRUD + 排序；**自由写作 → 标准写作转换**（convert-to-standard）
 - 伏笔：登记 / 回收（记录 lineId）/ 重开 / 删除
-- 全局搜索（含片段文本，命中返回 fragmentId 跳转）、一致性检查
+- 全局搜索（含世界观/角色/场景/伏笔/章节/台词，命中返回 scope+fragmentId 跳转）、一致性检查
 - 图片上传 / 媒体读取（目录穿越防护）
+- 文件系统浏览：`GET /api/fs/drives` `/api/fs/list`（全屏文件夹选择器）
 - 同步：`/sync/bind` `/sync/export` `/sync/import` `/sync/status`
 
 ## 6. 编辑器（editor/）
 
 - **5 Tab**：人设世界观 / 章节写作管理 / 剧情伏笔与回收 / 时间线与浓缩剧情 / LetsGal 同步。
 - **写作类型**：标准写作（结构化行）/ 自由写作（Markdown），全局切换。
-- **编辑/预览**：全局工具栏切换；标准预览 = 只读行渲染，自由预览 = Markdown 渲染。
+- **标准写作行（v3.1）**：对白/旁白为自适应高度 textarea（Shift+Enter 段内换行）；Enter 续同类行并聚焦（对白继承角色/表情）；Ctrl+Enter 旁白 / Alt+Enter 对白；Alt+↑/↓ 移行、Alt+Delete 删行、Alt+E 循环表情、复制行按钮；未选角色对白行橙色 ⚠️ 提示（避免同步生成 `未命名` 占位）。
+- **编辑/预览**：全局工具栏切换；标准预览 = 只读行渲染，自由预览 = Markdown 渲染（remark-breaks，单换行按行显示）。
 - **滚轮衔接**：正文滚到顶/底自动切换上一章末尾/下一章头部（Word 式分页）。
-- **自动保存**：行文本 800ms 防抖；章节属性/自由写作 3s 防抖；切换章节时强制 flush；全局「保存」按钮。
+- **自动保存**：行文本 800ms 防抖；章节属性/自由写作 3s 防抖；切换章节时强制 flush；全局「保存」按钮 / Ctrl+S 强制 flush 全部草稿。
+- **保存策略（v3.1）**：行/章节/片段/小章节增删改走 store 本地 patch（乐观更新），不再每次全量刷新章节树；API 失败自动重拉对齐；行草稿感知外部更新（反向同步后无本地改动自动同步显示）。
+- **弹窗/提示（v3.1）**：统一应用内 Modal（新建/删除确认）与 Toast（错误/成功提示），不再用 window.prompt/confirm/alert。
 - **右侧属性侧边栏**：时间线日期 / 标签 / 剧情概要 / 剧情浓缩（sticky 跟随）。
 - **目录树**：大章节（全宽、右侧 ＋新建小章节/✕）→ 小章节（▲▼＋✕）→ 子片段（└ 前缀、✕）；时间轴同 grid 对齐。
 - **外部演出块占位**：行列表中显示 LetsGal 特效/分支（只读橙色虚线行）。

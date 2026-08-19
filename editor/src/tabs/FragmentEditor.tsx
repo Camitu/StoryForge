@@ -5,6 +5,7 @@ import { useEditorStore } from '../store'
 import { FragmentLineRow } from './FragmentLineRow'
 import { LinePreview } from './LinePreview'
 import { withExternalBlocks } from './ExternalBlockRow'
+import { confirmDialog } from '../ui/dialog'
 
 /** 子片段独立编辑视图（标准写作）：把片段当作「从属父章节的子章节」编辑 */
 export function FragmentEditor({ sub, fragment, characters, scenes }: {
@@ -35,8 +36,8 @@ export function FragmentEditor({ sub, fragment, characters, scenes }: {
   }
 
   const onDelete = async () => {
-    if (!window.confirm(`删除子片段「${fragment.name}」？`)) return
-    await removeFragment(sub.id, fragment.id)
+    const ok = await confirmDialog({ title: `删除子片段「${fragment.name}」？`, message: '删除后 LetsGal 中的对应 fragment 将不再被同步。', okText: '删除', danger: true })
+    if (ok) await removeFragment(sub.id, fragment.id)
   }
 
   return (
@@ -75,8 +76,10 @@ export function FragmentEditor({ sub, fragment, characters, scenes }: {
                 characters={characters}
                 scenes={scenes}
                 onChange={(patch) => void editFragmentLine(sub.id, fragment.id, line.id, { kind: line.kind, ...patch } as LineIn)}
-                onDelete={() => { if (window.confirm('删除这行？')) void removeFragmentLine(sub.id, fragment.id, line.id) }}
+                onDelete={() => void removeFragmentLine(sub.id, fragment.id, line.id)}
                 onMove={(delta) => void shiftFragmentLine(sub.id, fragment.id, line.id, delta)}
+                onInsert={(data) => void addFragmentLine(sub.id, fragment.id, data)}
+                onDuplicate={(data) => void addFragmentLine(sub.id, fragment.id, data)}
               />
             ))}
             {fragment.lines.length === 0 && (fragment.externalBlocks?.length ?? 0) === 0 && <div className="empty-hint">还没有内容，点击上方按钮添加</div>}

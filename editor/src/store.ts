@@ -1,8 +1,9 @@
 import { create } from 'zustand'
-import type { Chapter, Character, Foreshadow, Project, Scene } from '@storyforge/shared'
+import type { Chapter, Character, Foreshadow, Project, Scene, SubChapter } from '@storyforge/shared'
 import {
   addFragment as addFragmentApi,
   addFragmentLine as addFragmentLineApi,
+  addLine as addLineApi,
   checkProject,
   createChapter,
   createCharacter,
@@ -55,6 +56,27 @@ export type TabId = 'world' | 'writing' | 'foreshadow' | 'timeline' | 'sync'
 /** 写作类型：标准写作（结构化行）或自由写作（Markdown 草稿）；编辑/预览由 preview 控制 */
 export type ViewMode = 'standard' | 'free'
 
+/** 章节树本地更新助手：对指定小章节应用 mutator（返回新小章节），其余原样保留 */
+function patchSub(chapters: Chapter[], subId: string, mutator: (sub: SubChapter) => SubChapter): Chapter[] {
+  return chapters.map((ch) => ({
+    ...ch,
+    subChapters: ch.subChapters.map((s) => (s.id === subId ? mutator(s) : s)),
+  }))
+}
+
+/**
+ * 操作失败统一处理：
+ * - 404：目标（行/小章节）已被删除（删除或切换章节与自动保存的竞态），属正常情况 → 静默重载对齐，不打扰用户
+ * - 其他错误：显示 error banner 并重载对齐
+ */
+function opFail(e: unknown): void {
+  const msg = (e as Error).message
+  void useEditorStore.getState().loadChapters()
+  if (!/404/.test(msg)) {
+    useEditorStore.setState({ error: msg })
+  }
+}
+
 interface EditorState {
   // 项目选择
   projects: ProjectSummary[]
@@ -104,7 +126,7 @@ interface EditorState {
   addCharacter: (data: Partial<Character>) => Promise<void>
   removeCharacter: (cid: string) => Promise<void>
   loadScenes: () => Promise<void>
-  saveScene: (sid: string, name: string, note?: string) => Promise<void>
+  saveScene: (sid: string, name: string, note?: string, imagePath?: string) => Promise<void>
   addScene: (name: string, note?: string) => Promise<void>
   removeScene: (sid: string) => Promise<void>
   loadChapters: () => Promise<void>
@@ -134,11 +156,15 @@ interface EditorState {
   unmarkForeshadow: (fid: string) => Promise<void>
   removeForeshadow: (fid: string) => Promise<void>
   runSearch: (q: string) => Promise<void>
+  clearSearch: () => void
   runCheck: () => Promise<{ ok: boolean; issues: string[] }>
   refreshSync: () => Promise<void>
   bindLetsGal: (dir: string) => Promise<void>
   runExport: (dryRun: boolean) => Promise<void>
   runImport: (dryRun: boolean) => Promise<void>
+  /** 新插入行后需要聚焦的行 id（LineRow 聚焦后自行清空） */
+  focusLineId: string | null
+  setFocusLine: (id: string | null) => void
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -157,6 +183,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   timelineVisible: true,
   collapsedChapters: new Set<string>(),
   searchResults: [],
+  focusLineId: null,
   syncStatus: null,
   syncResult: null,
   syncing: false,
@@ -175,7 +202,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   openProject: async (id) => {
     try {
       const project = await getProject(id)
-      set({ project, currentProjectId: id, selectedSubId: null, searchResults: [], error: null })
+      set({ project, currentProjectId: id, selectedSubId: null, searchResults: [], focusLineId: null, error: null })
       await Promise.all([
         get().loadCharacters(),
         get().loadScenes(),
@@ -219,6 +246,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     } catch { /* ignore */ }
   },
   setSelectedSub: (selectedSubId) => set({ selectedSubId }),
+  setFocusLine: (focusLineId) => set({ focusLineId }),
+  clearSearch: () => set({ searchResults: [] }),
 
   loadWorld: async () => {},
   saveWorld: async (worldview) => {
@@ -290,11 +319,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }
   },
 
-  saveScene: async (sid, name, note) => {
+  saveScene: async (sid, name, note, imagePath) => {
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      const updated = await updateScene(pid, sid, name, note)
+      const updated = await updateScene(pid, sid, name, note, imagePath)
       set({ scenes: get().scenes.map((s) => (s.id === sid ? updated : s)) })
     } catch (e) {
       set({ error: (e as Error).message })
@@ -338,8 +367,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      await createChapter(pid, name, summary)
-      await get().loadChapters()
+      const chapter = await createChapter(pid, name, summary)
+      set({ chapters: [...get().chapters, chapter] })
     } catch (e) {
       set({ error: (e as Error).message })
     }
@@ -349,8 +378,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      await updateChapter(pid, cid, name, summary)
-      await get().loadChapters()
+      const updated = await updateChapter(pid, cid, name, summary)
+      set({ chapters: get().chapters.map((c) => (c.id === cid ? updated : c)) })
     } catch (e) {
       set({ error: (e as Error).message })
     }
@@ -361,7 +390,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await deleteChapter(pid, cid)
-      await get().loadChapters()
+      set({ chapters: get().chapters.filter((c) => c.id !== cid) })
     } catch (e) {
       set({ error: (e as Error).message })
     }
@@ -372,7 +401,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await moveChapter(pid, cid, delta)
-      await get().loadChapters()
+      const chapters = get().chapters
+      const idx = chapters.findIndex((c) => c.id === cid)
+      const j = idx + delta
+      if (idx < 0 || j < 0 || j >= chapters.length) return
+      const arr = [...chapters]
+      ;[arr[idx], arr[j]] = [arr[j], arr[idx]]
+      set({ chapters: arr })
     } catch (e) {
       set({ error: (e as Error).message })
     }
@@ -383,8 +418,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       const sub = await createSubChapter(pid, chapterId, data)
-      await get().loadChapters()
-      set({ selectedSubId: sub.id })
+      set({
+        chapters: get().chapters.map((ch) => (ch.id === chapterId ? { ...ch, subChapters: [...ch.subChapters, sub] } : ch)),
+        selectedSubId: sub.id,
+      })
+      get().rememberSub(sub.id)
     } catch (e) {
       set({ error: (e as Error).message })
     }
@@ -394,10 +432,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      await updateSubChapter(pid, sid, data)
-      await get().loadChapters()
+      const updated = await updateSubChapter(pid, sid, data)
+      set({ chapters: patchSub(get().chapters, sid, () => updated) })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -406,10 +444,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await deleteSubChapter(pid, sid)
-      await get().loadChapters()
+      set({
+        chapters: get().chapters.map((ch) => ({ ...ch, subChapters: ch.subChapters.filter((s) => s.id !== sid) })),
+      })
       if (get().selectedSubId === sid) set({ selectedSubId: null })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -418,9 +458,34 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await moveSubChapter(pid, sid, delta, chapterId)
-      await get().loadChapters()
+      const chapters = get().chapters
+      if (chapterId) {
+        // 跨大章节：移到目标章节末尾
+        let moved: SubChapter | null = null
+        const next = chapters.map((ch) => {
+          const idx = ch.subChapters.findIndex((s) => s.id === sid)
+          if (idx < 0) return ch
+          moved = ch.subChapters[idx]
+          return { ...ch, subChapters: ch.subChapters.filter((s) => s.id !== sid) }
+        })
+        if (moved) {
+          set({ chapters: next.map((ch) => (ch.id === chapterId ? { ...ch, subChapters: [...ch.subChapters, moved!] } : ch)) })
+        }
+      } else {
+        set({
+          chapters: chapters.map((ch) => {
+            const idx = ch.subChapters.findIndex((s) => s.id === sid)
+            if (idx < 0) return ch
+            const j = idx + (delta ?? 0)
+            if (j < 0 || j >= ch.subChapters.length) return ch
+            const arr = [...ch.subChapters]
+            ;[arr[idx], arr[j]] = [arr[j], arr[idx]]
+            return { ...ch, subChapters: arr }
+          }),
+        })
+      }
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -428,13 +493,22 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      const res = await fetch(`http://127.0.0.1:8790/api/projects/${pid}/subchapters/${sid}/lines`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+      const created = await addLineApi(pid, sid, data)
+      const afterId = data.afterId
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => {
+          if (afterId) {
+            const idx = sub.lines.findIndex((l) => l.id === afterId)
+            if (idx >= 0) {
+              return { ...sub, lines: [...sub.lines.slice(0, idx + 1), created, ...sub.lines.slice(idx + 1)] }
+            }
+          }
+          return { ...sub, lines: [...sub.lines, created] }
+        }),
+        focusLineId: created.id,
       })
-      if (!res.ok) throw new Error(`新增行失败: ${res.status}`)
-      await get().loadChapters()
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -442,10 +516,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      await updateLine(pid, sid, lid, data)
-      await get().loadChapters()
+      const updated = await updateLine(pid, sid, lid, data)
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          lines: sub.lines.map((l) => (l.id === lid ? updated : l)),
+        })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -454,9 +533,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await deleteLine(pid, sid, lid)
-      await get().loadChapters()
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          lines: sub.lines.filter((l) => l.id !== lid),
+        })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -465,9 +549,20 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await moveLine(pid, sid, lid, delta)
-      await get().loadChapters()
+      const chapters = get().chapters
+      set({
+        chapters: patchSub(chapters, sid, (sub) => {
+          const arr = [...sub.lines]
+          const idx = arr.findIndex((l) => l.id === lid)
+          if (idx < 0) return sub
+          const j = idx + delta
+          if (j < 0 || j >= arr.length) return sub
+          ;[arr[idx], arr[j]] = [arr[j], arr[idx]]
+          return { ...sub, lines: arr }
+        }),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -475,10 +570,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      await addFragmentApi(pid, sid, name)
-      await get().loadChapters()
+      const frag = await addFragmentApi(pid, sid, name)
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({ ...sub, fragments: [...sub.fragments, frag] })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -487,9 +584,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await updateFragmentApi(pid, sid, fid, { name })
-      await get().loadChapters()
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          fragments: sub.fragments.map((f) => (f.id === fid ? { ...f, name } : f)),
+        })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -497,10 +599,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      await updateFragmentApi(pid, sid, fid, { freeText })
-      await get().loadChapters()
+      const updated = await updateFragmentApi(pid, sid, fid, { freeText })
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          fragments: sub.fragments.map((f) => (f.id === fid ? updated : f)),
+        })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -509,9 +616,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await deleteFragmentApi(pid, sid, fid)
-      await get().loadChapters()
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          fragments: sub.fragments.filter((f) => f.id !== fid),
+        })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -519,10 +631,26 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      await addFragmentLineApi(pid, sid, fid, data)
-      await get().loadChapters()
+      const created = await addFragmentLineApi(pid, sid, fid, data)
+      const afterId = data.afterId
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          fragments: sub.fragments.map((f) => {
+            if (f.id !== fid) return f
+            if (afterId) {
+              const idx = f.lines.findIndex((l) => l.id === afterId)
+              if (idx >= 0) {
+                return { ...f, lines: [...f.lines.slice(0, idx + 1), created, ...f.lines.slice(idx + 1)] }
+              }
+            }
+            return { ...f, lines: [...f.lines, created] }
+          }),
+        })),
+        focusLineId: created.id,
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -530,10 +658,17 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const pid = get().currentProjectId
     if (!pid) return
     try {
-      await updateFragmentLineApi(pid, sid, fid, lid, data)
-      await get().loadChapters()
+      const updated = await updateFragmentLineApi(pid, sid, fid, lid, data)
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          fragments: sub.fragments.map((f) =>
+            f.id === fid ? { ...f, lines: f.lines.map((l) => (l.id === lid ? updated : l)) } : f,
+          ),
+        })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -542,9 +677,16 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await deleteFragmentLineApi(pid, sid, fid, lid)
-      await get().loadChapters()
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          fragments: sub.fragments.map((f) =>
+            f.id === fid ? { ...f, lines: f.lines.filter((l) => l.id !== lid) } : f,
+          ),
+        })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 
@@ -553,9 +695,23 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!pid) return
     try {
       await moveFragmentLineApi(pid, sid, fid, lid, delta)
-      await get().loadChapters()
+      set({
+        chapters: patchSub(get().chapters, sid, (sub) => ({
+          ...sub,
+          fragments: sub.fragments.map((f) => {
+            if (f.id !== fid) return f
+            const arr = [...f.lines]
+            const idx = arr.findIndex((l) => l.id === lid)
+            if (idx < 0) return f
+            const j = idx + delta
+            if (j < 0 || j >= arr.length) return f
+            ;[arr[idx], arr[j]] = [arr[j], arr[idx]]
+            return { ...f, lines: arr }
+          }),
+        })),
+      })
     } catch (e) {
-      set({ error: (e as Error).message })
+      opFail(e)
     }
   },
 

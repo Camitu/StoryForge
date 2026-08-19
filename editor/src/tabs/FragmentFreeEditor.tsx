@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkBreaks from 'remark-breaks'
 import type { SubChapter, SubFragment } from '@storyforge/shared'
 import { useEditorStore } from '../store'
 import { useAutoSave } from './useAutoSave'
@@ -55,7 +56,7 @@ export function FragmentFreeEditor({ sub, fragment }: {
           <div className="sub-editor-main-inner">
             {preview ? (
               <div className="md-body free-preview">
-                {freeText.trim() ? <ReactMarkdown>{freeText}</ReactMarkdown> : <span className="empty-hint">（暂无内容）</span>}
+                {freeText.trim() ? <ReactMarkdown remarkPlugins={[remarkBreaks]}>{freeText}</ReactMarkdown> : <span className="empty-hint">（暂无内容）</span>}
               </div>
             ) : (
               <>

@@ -18,6 +18,8 @@ interface NamePickerProps {
   /** 输入新名称时显示的小标签 */
   newHint: string
   className?: string
+  /** 可选：转发给内部 input 的 ref（场景行聚焦用） */
+  inputRef?: React.Ref<HTMLInputElement>
   onCommit: (id: string, name: string) => void
   onCreate: (name: string) => Promise<PickerItem>
 }
@@ -27,7 +29,7 @@ interface NamePickerProps {
  * - 回车（Enter）：不存在则新建
  * - 失焦：命中已有项 → 选中；是某已有名称的前缀（疑似输入一半）→ 回退，不新建；否则 → 新建
  */
-function NamePicker({ items, valueName, listId, placeholder, newHint, className, onCommit, onCreate }: NamePickerProps) {
+function NamePicker({ items, valueName, listId, placeholder, newHint, className, inputRef, onCommit, onCreate }: NamePickerProps) {
   const [text, setText] = useState(valueName)
   const committedRef = useRef<{ id: string; name: string }>({ id: '', name: valueName })
   const creatingRef = useRef(false)
@@ -73,6 +75,7 @@ function NamePicker({ items, valueName, listId, placeholder, newHint, className,
       <input
         className="line-picker"
         list={listId}
+        ref={inputRef}
         value={text}
         placeholder={placeholder}
         onChange={(e) => setText(e.target.value)}
@@ -123,10 +126,11 @@ export function CharacterPicker({ items, valueName, listId, onCommit }: {
 }
 
 /** 场景选择器：选择已有场景 / 输入新场景名自动新建 */
-export function ScenePicker({ items, valueName, listId, onCommit }: {
+export function ScenePicker({ items, valueName, listId, inputRef, onCommit }: {
   items: Scene[]
   valueName: string
   listId: string
+  inputRef?: React.Ref<HTMLInputElement>
   onCommit: (id: string, name: string) => void
 }) {
   const pid = useEditorStore((s) => s.currentProjectId)
@@ -138,6 +142,7 @@ export function ScenePicker({ items, valueName, listId, onCommit }: {
       placeholder="选择/输入场景"
       newHint="新场景"
       className="picker-scene"
+      inputRef={inputRef}
       onCommit={onCommit}
       onCreate={async (name) => {
         const created = await createScene(pid!, name)

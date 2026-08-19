@@ -3,12 +3,26 @@ import { useEditorStore } from './store'
 import { deleteProject } from './api'
 import type { ProjectSummary } from './api'
 import { ErrorBanner } from './ErrorBanner'
+import { confirmDialog } from './ui/dialog'
+import { FolderPicker } from './ui/FolderPicker'
+import { toast } from './ui/toast'
+
+/** 默认存储根目录（与后端 config.DEFAULT_STORAGE_ROOT 保持一致） */
+const DEFAULT_STORAGE_ROOT = 'E:\\Apps\\StoryForge\\projects'
 
 export function ProjectSelect({ projects, onOpen }: { projects: ProjectSummary[]; onOpen: (id: string) => Promise<void> }) {
   const { createNewProject, refreshProjects } = useEditorStore()
   const [showNew, setShowNew] = useState(false)
   const [name, setName] = useState('')
   const [storageDir, setStorageDir] = useState('')
+  const [picking, setPicking] = useState(false)
+
+  /** 最终项目存储路径预览：父目录 + 项目名文件夹 */
+  const finalPath = (() => {
+    const parent = storageDir.trim() || DEFAULT_STORAGE_ROOT
+    const folder = name.trim() || '项目名'
+    return `${parent}\\${folder}\\project.json`
+  })()
 
   const submitNew = async () => {
     if (!name.trim()) return
@@ -20,14 +34,21 @@ export function ProjectSelect({ projects, onOpen }: { projects: ProjectSummary[]
 
   const onDelete = async (p: ProjectSummary) => {
     const msg = p.storageDir
-      ? `确定删除项目「${p.name}」？\n\n将删除本地工程文件：\n${p.storageDir}\\project.json\n\n（不会动 LetsGal 项目）`
-      : `确定删除项目「${p.name}」？`
-    if (!window.confirm(msg)) return
+      ? `将删除本地工程文件：\n${p.storageDir}\\project.json\n\n（不会动 LetsGal 项目）`
+      : undefined
+    const ok = await confirmDialog({
+      title: `确定删除项目「${p.name}」？`,
+      message: msg,
+      okText: '删除',
+      danger: true,
+    })
+    if (!ok) return
     try {
       await deleteProject(p.id)
       await refreshProjects()
+      toast('项目已删除', 'success')
     } catch (e) {
-      alert((e as Error).message)
+      toast((e as Error).message, 'error')
     }
   }
 
@@ -71,13 +92,19 @@ export function ProjectSelect({ projects, onOpen }: { projects: ProjectSummary[]
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && void submitNew()}
           />
-          <input
-            className="input"
-            placeholder="项目存储根目录（可选，如 E:\\GamePro\\我的游戏）"
-            value={storageDir}
-            onChange={(e) => setStorageDir(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && void submitNew()}
-          />
+          <div className="dir-row">
+            <input
+              className="input"
+              placeholder={`项目存储根目录（可选，默认 ${DEFAULT_STORAGE_ROOT}）`}
+              value={storageDir}
+              onChange={(e) => setStorageDir(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && void submitNew()}
+            />
+            <button type="button" className="ghost-btn" onClick={() => setPicking(true)} title="全屏浏览并选择文件夹">
+              📁 浏览…
+            </button>
+          </div>
+          <div className="dir-preview">📂 将存储到：<code>{finalPath}</code></div>
           <div className="new-project-actions">
             <button className="primary-btn" onClick={() => void submitNew()} disabled={!name.trim()}>
               创建
@@ -89,6 +116,13 @@ export function ProjectSelect({ projects, onOpen }: { projects: ProjectSummary[]
         </div>
       )}
       <ErrorBanner />
+
+      {picking && (
+        <FolderPicker
+          onSelect={(dir) => { setStorageDir(dir); setPicking(false) }}
+          onCancel={() => setPicking(false)}
+        />
+      )}
     </div>
   )
 }

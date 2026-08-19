@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import ai, projects, sync
+from .routers import ai, fs, projects, sync
 
 app = FastAPI(
     title="StoryForge",
@@ -20,6 +20,7 @@ app.add_middleware(
 app.include_router(projects.router)
 app.include_router(ai.router)
 app.include_router(sync.router)
+app.include_router(fs.router)
 
 
 @app.get("/")

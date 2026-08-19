@@ -5,6 +5,8 @@ import { FragmentEditor } from './FragmentEditor'
 import { FragmentFreeEditor } from './FragmentFreeEditor'
 import { FreeEditor } from './FreeEditor'
 import { EditPreviewToggle } from './EditPreviewToggle'
+import { confirmDialog, promptDialog } from '../ui/dialog'
+import { toast } from '../ui/toast'
 
 const MODES: { id: ViewMode; label: string }[] = [
   { id: 'standard', label: '标准写作' },
@@ -18,7 +20,7 @@ export function WritingTab() {
     viewMode, setViewMode, timelineVisible, toggleTimeline,
     collapsedChapters, toggleChapterCollapse, rememberSub,
     addChapter, saveChapter, removeChapter,
-    addSub, shiftSub, removeSub, runSearch, searchResults, currentProjectId,
+    addSub, shiftSub, removeSub, runSearch, clearSearch, searchResults, currentProjectId,
     addFragment, removeFragment, requestSave,
   } = useEditorStore()
   const [searchQ, setSearchQ] = useState('')
@@ -100,18 +102,10 @@ export function WritingTab() {
     const handler = (e: WheelEvent) => {
       if (focusedFragment) return // 片段视图内容少，不参与衔接
       const t = e.target as HTMLElement
-      if (t.closest('input, select')) return // 单行输入/下拉框内滚动不拦截
-      let atTop: boolean
-      let atBottom: boolean
-      const ta = t.closest('textarea') as HTMLTextAreaElement | null
-      if (ta) {
-        atTop = ta.scrollTop <= 1
-        atBottom = ta.scrollTop + ta.clientHeight >= ta.scrollHeight - 1
-        if (!atTop && !atBottom) return
-      } else {
-        atTop = el.scrollTop <= 1
-        atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1
-      }
+      // 输入框/下拉框/文本域内滚动不拦截翻章（避免在文本框里滚轮误切上下章节）
+      if (t.closest('input, select, textarea')) return
+      const atTop = el.scrollTop <= 1
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1
       if (e.deltaY < 0 && atTop) {
         const prev = findPrevSub(selectedSubId)
         if (prev) { e.preventDefault(); selectSub(prev.id, 'bottom') }
@@ -132,12 +126,20 @@ export function WritingTab() {
     saveTimerRef.current = setTimeout(() => setSaveFeedback(false), 1500)
   }
 
-  const onSearch = async (q: string) => {
-    setSearchQ(q)
-    if (q.trim()) await runSearch(q.trim())
-  }
+  // 搜索防抖 300ms（避免每敲一个字符就请求一次全局搜索）
+  useEffect(() => {
+    const q = searchQ.trim()
+    if (!q) {
+      clearSearch()
+      return
+    }
+    const t = setTimeout(() => void runSearch(q), 300)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQ])
 
-  const gotoSearchResult = (subId: string, fragmentId?: string | null) => {
+  const gotoSearchResult = (subId: string | null, fragmentId?: string | null) => {
+    if (!subId) return // 世界观/角色/场景/伏笔结果：只展示，不跳转
     setSelectedSub(subId)
     rememberSub(subId)
     setFocusFragmentId(fragmentId ?? null)
@@ -145,20 +147,26 @@ export function WritingTab() {
     setSearchQ('')
   }
 
-  const onAddFragment = (subId: string) => {
-    const fname = window.prompt('子片段名（对应 LetsGal fragment，main 为保留名）', '片段1')
+  const onAddFragment = async (subId: string) => {
+    const fname = await promptDialog({ title: '新建子片段', message: '子片段名（对应 LetsGal fragment，main 为保留名）', placeholder: '片段1', initial: '片段1' })
     if (fname?.trim()) void addFragment(subId, fname.trim())
   }
 
   const onDeleteFragment = async (subId: string, fid: string) => {
-    if (!window.confirm('删除这个子片段？')) return
+    const ok = await confirmDialog({ title: '删除这个子片段？', okText: '删除', danger: true })
+    if (!ok) return
     await removeFragment(subId, fid)
     if (focusFragmentId === fid) setFocusFragmentId(null)
   }
 
-  const onAddSub = (chapterId: string) => {
-    const name = window.prompt('小章节名（= LetsGal 章节名）', '新章节')
-    if (name) void addSub(chapterId, { name, date: '', summary: '', tags: [], condense: '', mode: 'standard', freeText: '' })
+  const onAddSub = async (chapterId: string) => {
+    const name = await promptDialog({ title: '新建小章节', message: '小章节名（= LetsGal 章节名，需唯一）', placeholder: '新章节', initial: '新章节' })
+    if (name?.trim()) void addSub(chapterId, { name: name.trim(), date: '', summary: '', tags: [], condense: '', mode: 'standard', freeText: '' })
+  }
+
+  const onAddChapter = async () => {
+    const name = await promptDialog({ title: '新建大章节', placeholder: '新大章节', initial: '新大章节' })
+    if (name?.trim()) void addChapter(name.trim())
   }
 
   return (
@@ -170,15 +178,19 @@ export function WritingTab() {
             className="input search-input"
             placeholder="全局搜索：章节 / 台词 / 片段…"
             value={searchQ}
-            onChange={(e) => void onSearch(e.target.value)}
+            onChange={(e) => setSearchQ(e.target.value)}
           />
         </div>
         {searchQ.trim() && (
           <div className="search-results">
             {searchResults.length === 0 && <div className="search-empty">无结果</div>}
-            {searchResults.map((r) => (
-              <button key={r.subChapterId} className="search-result-item" onClick={() => gotoSearchResult(r.subChapterId, r.fragmentId)}>
-                <span className="search-date">{r.date}</span>
+            {searchResults.map((r, i) => (
+              <button
+                key={r.subChapterId ? r.subChapterId : `${r.scope}-${i}`}
+                className={`search-result-item ${!r.subChapterId ? 'search-result-static' : ''}`}
+                onClick={() => gotoSearchResult(r.subChapterId, r.fragmentId)}
+              >
+                <span className="search-date">{r.scope === 'chapter' ? r.date : r.scope}</span>
                 <span className="search-name">{r.chapterName} / {r.subChapterName}</span>
                 <span className="search-hits">{r.hits.join('；')}</span>
               </button>
@@ -243,14 +255,18 @@ export function WritingTab() {
                       </span>
                     )}
                     <span className="chapter-actions">
-                      <button title="新建小章节" onClick={() => onAddSub(ch.id)}>＋</button>
+                      <button title="新建小章节" onClick={() => void onAddSub(ch.id)}>＋</button>
                       <button title="删除大章节" className="danger"
                         onClick={() => {
                           if (ch.subChapters.length > 0) {
-                            alert('大章节下有小章节，请先移走或删除')
+                            toast('大章节下有小章节，请先移走或删除', 'error')
                             return
                           }
-                          if (window.confirm(`删除大章节「${ch.name}」？`)) void removeChapter(ch.id)
+                          void confirmDialog({
+                            title: `删除大章节「${ch.name}」？`,
+                            okText: '删除',
+                            danger: true,
+                          }).then((ok) => { if (ok) void removeChapter(ch.id) })
                         }}>
                         ✕
                       </button>
@@ -283,11 +299,16 @@ export function WritingTab() {
                       <span className="sub-actions">
                         <button title="上移" onClick={(e) => { e.stopPropagation(); void shiftSub(sub.id, -1) }}>▲</button>
                         <button title="下移" onClick={(e) => { e.stopPropagation(); void shiftSub(sub.id, 1) }}>▼</button>
-                        <button title="新建子片段" onClick={(e) => { e.stopPropagation(); onAddFragment(sub.id) }}>＋</button>
+                        <button title="新建子片段" onClick={(e) => { e.stopPropagation(); void onAddFragment(sub.id) }}>＋</button>
                         <button title="删除" className="danger"
                           onClick={(e) => {
                             e.stopPropagation()
-                            if (window.confirm(`删除小章节「${sub.name}」？`)) void removeSub(sub.id)
+                            void confirmDialog({
+                              title: `删除小章节「${sub.name}」？`,
+                              message: '删除后 LetsGal 中的对应章节将不再被同步。',
+                              okText: '删除',
+                              danger: true,
+                            }).then((ok) => { if (ok) void removeSub(sub.id) })
                           }}>
                           ✕
                         </button>
@@ -332,10 +353,7 @@ export function WritingTab() {
             <div className="tt-tree-cell">
               <button
                 className="add-sub-btn"
-                onClick={() => {
-                  const name = window.prompt('大章节名', '新大章节')
-                  if (name) void addChapter(name)
-                }}
+                onClick={() => void onAddChapter()}
               >
                 ＋ 大章节
               </button>

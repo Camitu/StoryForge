@@ -1,4 +1,5 @@
 import { useEditorStore } from '../store'
+import { confirmDialog, promptDialog } from '../ui/dialog'
 
 /** 剧情伏笔与回收 Tab：列表展示，可跳转 */
 export function ForeshadowTab() {
@@ -51,16 +52,19 @@ export function ForeshadowTab() {
               </td>
               <td className="fs-actions">
                 {f.status === 'open' ? (
-                  <button className="ghost-btn small" onClick={() => {
-                    const note = window.prompt('回收说明（可选）', '')
-                    void markForeshadow(f.id, f.plantedAt.subChapterId, note ?? undefined)
+                  <button className="ghost-btn small" onClick={async () => {
+                    const note = await promptDialog({ title: '回收伏笔', message: '回收说明（可选，例如「第 3 章揭示真相」）', placeholder: '回收说明' })
+                    void markForeshadow(f.id, f.plantedAt.subChapterId, undefined, note ?? undefined)
                   }}>
                     回收
                   </button>
                 ) : (
                   <button className="ghost-btn small" onClick={() => void unmarkForeshadow(f.id)}>重开</button>
                 )}
-                <button className="danger-btn small" onClick={() => { if (window.confirm('删除这条伏笔？')) void removeForeshadow(f.id) }}>
+                <button className="danger-btn small" onClick={async () => {
+                  const ok = await confirmDialog({ title: '删除这条伏笔？', okText: '删除', danger: true })
+                  if (ok) void removeForeshadow(f.id)
+                }}>
                   删
                 </button>
               </td>

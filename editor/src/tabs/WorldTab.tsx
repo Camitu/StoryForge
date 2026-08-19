@@ -2,6 +2,9 @@ import { useRef, useState } from 'react'
 import type { Chapter, Scene } from '@storyforge/shared'
 import { useEditorStore } from '../store'
 import { mediaUrl, uploadImage } from '../api'
+import { confirmDialog, promptDialog } from '../ui/dialog'
+import { toast } from '../ui/toast'
+import { ExpressionManager } from './ExpressionManager'
 
 /** 人设世界观 Tab */
 export function WorldTab() {
@@ -106,9 +109,9 @@ export function WorldTab() {
             </button>
           </div>
         </div>
-        <div className="scene-list">
+        <div className="scene-grid">
           {scenes.map((s) => (
-            <SceneRow key={s.id} scene={s} />
+            <SceneCard key={s.id} scene={s} />
           ))}
           {scenes.length === 0 && (
             <div className="empty-hint">还没有场景。写作时在「切场景」行直接输入新场景名也会自动创建。</div>
@@ -119,9 +122,13 @@ export function WorldTab() {
   )
 }
 
-/** 场景行：重命名 / 删除 */
-function SceneRow({ scene }: { scene: Scene }) {
-  const { chapters, saveScene, removeScene } = useEditorStore()
+/** 场景卡片：16:9 形象图（可上传）+ 场景名 + 重命名/删除 */
+function SceneCard({ scene }: { scene: Scene }) {
+  const { currentProjectId, chapters, saveScene, removeScene } = useEditorStore()
+  const [imagePath, setImagePath] = useState(scene.imagePath ?? '')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const pid = currentProjectId!
 
   const countRefs = (chapters: Chapter[], sid: string) => {
     let n = 0
@@ -140,28 +147,74 @@ function SceneRow({ scene }: { scene: Scene }) {
     return n
   }
 
+  const onPickImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !pid) return
+    try {
+      const { path } = await uploadImage(pid, file)
+      setImagePath(path)
+      await saveScene(scene.id, scene.name, scene.note, path)
+    } catch (err) {
+      toast((err as Error).message, 'error')
+    }
+    e.target.value = ''
+  }
+
+  const onClearImage = async () => {
+    setImagePath('')
+    await saveScene(scene.id, scene.name, scene.note, '')
+  }
+
   const onRename = async () => {
-    const name = window.prompt('场景名称', scene.name)
+    const name = await promptDialog({ title: '重命名场景', placeholder: '场景名称', initial: scene.name })
     if (!name?.trim() || name.trim() === scene.name) return
-    await saveScene(scene.id, name.trim(), scene.note)
+    await saveScene(scene.id, name.trim(), scene.note, imagePath || undefined)
   }
 
   const onRemove = async () => {
     const refs = countRefs(chapters, scene.id)
-    const warn = refs > 0 ? `\n\n⚠️ 该场景被 ${refs} 处剧情行引用，删除后这些行将失去场景名。` : ''
-    if (!window.confirm(`确定删除场景「${scene.name}」？${warn}`)) return
-    await removeScene(scene.id)
+    const warn = refs > 0 ? `该场景被 ${refs} 处剧情行引用，删除后这些行将失去场景名。` : ''
+    const ok = await confirmDialog({
+      title: `确定删除场景「${scene.name}」？`,
+      message: warn || undefined,
+      okText: '删除',
+      danger: true,
+    })
+    if (ok) await removeScene(scene.id)
   }
 
   return (
-    <div className="scene-row">
-      <span className="scene-row-name" title="双击重命名" onDoubleClick={() => void onRename()}>
-        {scene.name}
-      </span>
-      <span className="scene-row-actions">
-        <button title="重命名" onClick={() => void onRename()}>✎</button>
-        <button title="删除" className="danger" onClick={() => void onRemove()}>✕</button>
-      </span>
+    <div className="scene-card">
+      <div
+        className="scene-card-image"
+        title="双击选择场景形象图（复制到工程目录）"
+        onDoubleClick={() => fileInputRef.current?.click()}
+      >
+        {imagePath ? (
+          <img src={mediaUrl(pid, imagePath)} alt={scene.name} />
+        ) : (
+          <span className="scene-card-placeholder">🏞 {scene.name}</span>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(e) => void onPickImage(e)}
+        />
+      </div>
+      <div className="scene-card-footer">
+        <span className="scene-card-name" title="双击重命名" onDoubleClick={() => void onRename()}>
+          {scene.name}
+        </span>
+        <span className="scene-card-actions">
+          <button title="重命名" onClick={() => void onRename()}>✎</button>
+          {imagePath && (
+            <button title="清除图像" onClick={() => void onClearImage()}>🗑</button>
+          )}
+          <button title="删除" className="danger" onClick={() => void onRemove()}>✕</button>
+        </span>
+      </div>
     </div>
   )
 }
@@ -175,6 +228,7 @@ function CharacterCard({ cid }: { cid: string }) {
   const [imagePath, setImagePath] = useState(c.imagePath ?? '')
   const [timeline, setTimeline] = useState(c.plotTimeline ?? [])
   const [saved, setSaved] = useState(false)
+  const [showExprMgr, setShowExprMgr] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const pid = currentProjectId!
@@ -200,42 +254,31 @@ function CharacterCard({ cid }: { cid: string }) {
     try {
       const { path } = await uploadImage(pid, file)
       setImagePath(path)
+      // 选图即保存（无需额外点保存）
+      await saveCharacter(cid, { name: c.name, note, baseSetting, imagePath: path, plotTimeline: timeline })
     } catch (err) {
-      alert((err as Error).message)
+      toast((err as Error).message, 'error')
     }
     e.target.value = ''
   }
 
+  const onClearImage = async () => {
+    setImagePath('')
+    await saveCharacter(cid, { name: c.name, note, baseSetting, imagePath: '', plotTimeline: timeline })
+  }
+
   const onRemove = async () => {
-    if (!window.confirm(`确定删除角色「${c.name}」？`)) return
-    await removeCharacter(cid)
+    const ok = await confirmDialog({ title: `确定删除角色「${c.name}」？`, okText: '删除', danger: true })
+    if (ok) await removeCharacter(cid)
   }
 
   return (
     <div className="char-card">
-      {/* 右上角操作 */}
-      <div className="char-card-actions">
-        {!editing ? (
-          <>
-            <button className="ghost-btn small" onClick={beginEdit}>修改</button>
-            <button className="danger-btn small" onClick={onRemove}>删除</button>
-          </>
-        ) : (
-          <>
-            <button className="ghost-btn small" onClick={onSave}>{saved ? '✓' : '保存'}</button>
-            <button className="ghost-btn small" onClick={() => setEditing(false)}>取消</button>
-          </>
-        )}
-      </div>
-
-      {/* 形象区域：2:3，顶部对齐；双击选图 */}
+      {/* 形象区域：撑满卡片左右，不留内外边距；双击仅换图（不进入文本编辑） */}
       <div
         className="char-portrait"
-        title={editing ? '双击选择形象图片（复制到工程目录）' : '双击修改形象图片'}
-        onDoubleClick={() => {
-          if (!editing) beginEdit()
-          fileInputRef.current?.click()
-        }}
+        title="双击选择形象图片（复制到工程目录）"
+        onDoubleClick={() => fileInputRef.current?.click()}
       >
         {imagePath ? (
           <img src={mediaUrl(pid, imagePath)} alt={c.name} />
@@ -251,7 +294,31 @@ function CharacterCard({ cid }: { cid: string }) {
         />
       </div>
 
-      <h3 className="char-name">{c.name}</h3>
+      {/* 角色名 + 操作按钮同行：名靠左、按钮靠右 */}
+      <div className="char-head">
+        <h3 className="char-name">{c.name}</h3>
+        <div className="char-card-actions">
+          {!editing ? (
+            <>
+              <button className="ghost-btn small" onClick={beginEdit}>修改</button>
+              <button className="ghost-btn small" onClick={() => setShowExprMgr(true)} title="查看/批量替换该角色已使用的表情差分">
+                表情差分
+              </button>
+              {imagePath && (
+                <button className="ghost-btn small" onClick={() => void onClearImage()} title="清除形象图像">
+                  清除图像
+                </button>
+              )}
+              <button className="danger-btn small" onClick={onRemove}>删除</button>
+            </>
+          ) : (
+            <>
+              <button className="ghost-btn small" onClick={onSave}>{saved ? '✓' : '保存'}</button>
+              <button className="ghost-btn small" onClick={() => setEditing(false)}>取消</button>
+            </>
+          )}
+        </div>
+      </div>
 
       {/* 备注 */}
       <div className="char-field">
@@ -333,6 +400,10 @@ function CharacterCard({ cid }: { cid: string }) {
           </div>
         )}
       </div>
+
+      {showExprMgr && (
+        <ExpressionManager cid={cid} charName={c.name} onClose={() => setShowExprMgr(false)} />
+      )}
     </div>
   )
 }

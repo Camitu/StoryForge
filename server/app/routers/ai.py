@@ -5,6 +5,7 @@
 
 所有操作都是「读工程 → 修改 → 写回」，方便 AI 通过 API 直接驱动。
 """
+import re
 import uuid
 from pathlib import Path
 from typing import List, Optional
@@ -70,6 +71,86 @@ def _find_or_create_chapter(project: Project, chapter_id: Optional[str]) -> Chap
 
 # ---------- 世界观 ----------
 
+
+@router.get("/overview")
+def project_overview(project_id: str):
+    """项目概览（AI 友好）：一次调用获取世界观、角色名列表、场景名列表、章节树骨架、伏笔概要。
+
+    供 AI 协作时快速了解项目全貌，再按需用明细接口取详情。
+    """
+    project = _load(project_id)
+    return {
+        "id": project.id,
+        "name": project.name,
+        "version": project.version,
+        "worldview": project.worldview,
+        "characters": [{"id": c.id, "name": c.name} for c in project.characters],
+        "scenes": [{"id": s.id, "name": s.name} for s in project.scenes],
+        "chapters": [
+            {
+                "id": ch.id,
+                "name": ch.name,
+                "summary": ch.summary,
+                "subChapters": [
+                    {
+                        "id": sub.id,
+                        "name": sub.name,
+                        "date": sub.date,
+                        "summary": sub.summary,
+                        "tags": sub.tags,
+                        "condense": sub.condense,
+                        "mode": sub.mode,
+                        "lineCount": len(sub.lines),
+                        "fragmentNames": [f.name for f in sub.fragments],
+                    }
+                    for sub in ch.subChapters
+                ],
+            }
+            for ch in project.chapters
+        ],
+        "foreshadows": [
+            {
+                "id": f.id,
+                "content": f.content,
+                "status": f.status,
+                "plantedSubChapterId": f.plantedAt.subChapterId if f.plantedAt else None,
+            }
+            for f in project.foreshadows
+        ],
+    }
+
+
+@router.get("/condense")
+def get_condense(project_id: str):
+    """浓缩剧情时间线（AI 友好，轻量）：按章节顺序返回各小章节的
+    date/summary/condense/tags，不含正文行。
+
+    超大项目（几十万字）下，AI 先读本接口即可掌握剧情走向与伏笔分布，
+    再按需用 /subchapters/{sid} 取单章全文。
+    """
+    project = _load(project_id)
+    order = project.chapterOrder or [c.id for c in project.chapters]
+    chapters_out = []
+    for cid in order:
+        ch = next((c for c in project.chapters if c.id == cid), None)
+        if ch is None:
+            continue
+        subs = []
+        for sub in ch.subChapters:
+            subs.append({
+                "id": sub.id,
+                "name": sub.name,
+                "date": sub.date,
+                "summary": sub.summary,
+                "condense": sub.condense,
+                "tags": sub.tags,
+                "mode": sub.mode,
+                "lineCount": len(sub.lines),
+                "fragmentCount": len(sub.fragments),
+            })
+        chapters_out.append({"id": ch.id, "name": ch.name, "summary": ch.summary, "subChapters": subs})
+    return {"chapters": chapters_out}
+
 @router.get("/worldview")
 def get_worldview(project_id: str):
     project = _load(project_id)
@@ -98,6 +179,16 @@ class CharacterIn(BaseModel):
 def list_characters(project_id: str):
     project = _load(project_id)
     return project.characters
+
+
+@router.get("/characters/{cid}")
+def get_character(project_id: str, cid: str):
+    """单个角色详情（含 name/note/baseSetting/plotTimeline）。"""
+    project = _load(project_id)
+    char = next((c for c in project.characters if c.id == cid), None)
+    if char is None:
+        raise HTTPException(404, f"角色不存在: {cid}")
+    return char
 
 
 @router.post("/characters", status_code=201)
@@ -145,17 +236,88 @@ def character_refs(project_id: str, cid: str):
     return {"refs": logic.character_references(project, cid)}
 
 
+@router.get("/characters/{cid}/expressions")
+def list_character_expressions(project_id: str, cid: str):
+    """该角色在全部剧情（含子片段）中已使用的表情差分统计。
+
+    返回按使用次数降序的 [{expression, count}]，及 total。
+    格式约定：表情可以是 `表情`（如 开心）或 `服装·表情`（如 衬衫·开心）。
+    """
+    project = _load(project_id)
+    char = next((c for c in project.characters if c.id == cid), None)
+    if char is None:
+        raise HTTPException(404, f"角色不存在: {cid}")
+    counts: dict[str, int] = {}
+
+    def walk(lines):
+        for l in lines:
+            if l.kind == "dialogue" and l.characterId == cid and l.expression:
+                counts[l.expression] = counts.get(l.expression, 0) + 1
+
+    for ch in project.chapters:
+        for sub in ch.subChapters:
+            walk(sub.lines)
+            for frag in sub.fragments:
+                walk(frag.lines)
+    items = [{"expression": k, "count": v} for k, v in sorted(counts.items(), key=lambda x: (-x[1], x[0]))]
+    return {"characterId": cid, "characterName": char.name, "expressions": items, "total": sum(counts.values())}
+
+
+@router.post("/characters/{cid}/expressions/replace")
+def replace_character_expression(project_id: str, cid: str, body: dict):
+    """批量替换该角色在全部剧情（含子片段）中的某个表情为另一个表情。
+
+    body: {"from": "旧表情", "to": "新表情"}（to 传空串 = 清除表情）。
+    返回 {"replaced": 替换行数}。
+    """
+    project = _load(project_id)
+    char = next((c for c in project.characters if c.id == cid), None)
+    if char is None:
+        raise HTTPException(404, f"角色不存在: {cid}")
+    from_expr = (body.get("from") or "").strip()
+    to_expr = (body.get("to") or "").strip()
+    if not from_expr:
+        raise HTTPException(400, "from 不能为空")
+    replaced = 0
+
+    def walk(lines):
+        nonlocal replaced
+        for l in lines:
+            if l.kind == "dialogue" and l.characterId == cid and (l.expression or "") == from_expr:
+                l.expression = to_expr or None
+                replaced += 1
+
+    for ch in project.chapters:
+        for sub in ch.subChapters:
+            walk(sub.lines)
+            for frag in sub.fragments:
+                walk(frag.lines)
+    _save(project)
+    return {"characterId": cid, "characterName": char.name, "from": from_expr, "to": to_expr or None, "replaced": replaced}
+
+
 # ---------- 场景 ----------
 
 class SceneIn(BaseModel):
     name: str
     note: Optional[str] = None
+    imagePath: Optional[str] = None
 
 
 @router.get("/scenes")
 def list_scenes(project_id: str):
     project = _load(project_id)
     return project.scenes
+
+
+@router.get("/scenes/{sid}")
+def get_scene(project_id: str, sid: str):
+    """单个场景详情（含 name/note）。"""
+    project = _load(project_id)
+    scene = next((s for s in project.scenes if s.id == sid), None)
+    if scene is None:
+        raise HTTPException(404, f"场景不存在: {sid}")
+    return scene
 
 
 @router.post("/scenes", status_code=201)
@@ -179,6 +341,7 @@ def update_scene(project_id: str, sid: str, body: SceneIn):
         raise HTTPException(400, f"场景已存在: {body.name}")
     scene.name = body.name
     scene.note = body.note
+    scene.imagePath = body.imagePath
     _save(project)
     return scene
 
@@ -339,6 +502,155 @@ def move_subchapter(project_id: str, sid: str, body: dict):
     return {"ok": True}
 
 
+# ---------- 自由写作 → 标准写作转换 ----------
+
+FREE_TO_STANDARD_PROMPT = """你是剧本结构化助手。请把下面的自由写作草稿转换为标准写作行 JSON 数组，规则：
+- 场景切换 → {"kind":"scene","sceneId":"<场景id>","sceneName":"<场景名>"}
+- 对白 → {"kind":"dialogue","characterId":"<角色id>","characterName":"<角色名>","expression":"<表情>","text":"台词"}
+- 旁白/描述 → {"kind":"narration","text":"..."}
+- 必须使用提供的角色/场景 id；草稿中出现的角色/场景若不在列表里，characterId/sceneId 填 "__new__" 并保持名称
+- 输出纯 JSON 数组，不要额外解释
+
+可用角色: {characters}
+可用场景: {scenes}
+草稿:
+{free_text}
+"""
+
+
+def _convert_free_text(free_text: str, project: Project, apply: bool):
+    """把自由写作 Markdown 文本转成标准行 dict 列表（启发式解析）。
+
+    规则：
+    - `# 场景名` 标题行 → scene 行
+    - `角色名（表情）：台词` / `角色名：台词` → dialogue 行
+    - 其余行按空行分段合并为 narration 行
+    角色/场景不存在时：apply=True 自动创建并落库；否则以 "__new__" 占位并记录。
+    返回 (lines, created_char_names, created_scene_names)
+    """
+    lines: List[dict] = []
+    created_chars: List[str] = []
+    created_scenes: List[str] = []
+
+    char_by_name = {c.name: c for c in project.characters}
+    scene_by_name = {s.name: s for s in project.scenes}
+
+    def get_char(name: str):
+        name = name.strip()
+        if name in char_by_name:
+            return char_by_name[name]
+        if apply:
+            ch = Character(id=uuid.uuid4().hex, name=name, note="由自由写作转换自动创建")
+            project.characters.append(ch)
+            char_by_name[name] = ch
+            created_chars.append(name)
+            return ch
+        created_chars.append(name)
+        return None  # 预览模式：占位
+
+    def get_scene(name: str):
+        name = name.strip()
+        if name in scene_by_name:
+            return scene_by_name[name]
+        if apply:
+            sc = Scene(id=uuid.uuid4().hex, name=name, note="由自由写作转换自动创建")
+            project.scenes.append(sc)
+            scene_by_name[name] = sc
+            created_scenes.append(name)
+            return sc
+        created_scenes.append(name)
+        return None  # 预览模式：占位
+
+    narration_buf: List[str] = []
+
+    def flush_narration():
+        nonlocal narration_buf
+        if narration_buf:
+            text = "\n".join(narration_buf).strip()
+            if text:
+                lines.append({"kind": "narration", "text": text})
+            narration_buf = []
+
+    DIALOG_RE = re.compile(r"^\s*(.+?)[（(]([^）)]*)[）)]\s*[：:]\s*(.+)$")  # 角色（表情）：台词
+    DIALOG_RE2 = re.compile(r"^\s*(.+?)[：:]\s*(.+)$")  # 角色：台词
+    SCENE_RE = re.compile(r"^\s*#{1,6}\s*(.+)$")  # # 场景名
+
+    for raw in free_text.splitlines():
+        line = raw.rstrip()
+        if not line.strip():
+            flush_narration()
+            continue
+        m = SCENE_RE.match(line)
+        if m:
+            flush_narration()
+            scene = get_scene(m.group(1).strip())
+            lines.append({
+                "kind": "scene",
+                "sceneId": scene.id if scene else "__new__",
+                "sceneName": m.group(1).strip(),
+            })
+            continue
+        m = DIALOG_RE.match(line)
+        if m:
+            flush_narration()
+            char = get_char(m.group(1))
+            lines.append({
+                "kind": "dialogue",
+                "characterId": char.id if char else "__new__",
+                "characterName": m.group(1).strip(),
+                "expression": m.group(2).strip() or None,
+                "text": m.group(3).strip(),
+            })
+            continue
+        m = DIALOG_RE2.match(line)
+        if m:
+            flush_narration()
+            char = get_char(m.group(1))
+            lines.append({
+                "kind": "dialogue",
+                "characterId": char.id if char else "__new__",
+                "characterName": m.group(1).strip(),
+                "expression": None,
+                "text": m.group(2).strip(),
+            })
+            continue
+        narration_buf.append(line.strip())
+    flush_narration()
+    return lines, created_chars, created_scenes
+
+
+@router.post("/subchapters/{sid}/convert-to-standard")
+def convert_free_to_standard(project_id: str, sid: str, body: dict | None = None):
+    """把该小章节的 freeText（自由写作草稿）转换为标准写作行。
+
+    body: {"apply": bool} —— 默认 false 仅预览（不写库，不创建角色/场景）；
+    apply=true 时写入 lines、自动创建缺失角色/场景、mode 置为 standard。
+    同时返回 AI 精修用的提示词模板。
+    """
+    apply = bool((body or {}).get("apply", False))
+    project = _load(project_id)
+    _chapter, sub = _find_subchapter(project, sid)
+    if not sub.freeText.strip():
+        raise HTTPException(400, f"小章节「{sub.name}」没有自由写作内容（freeText 为空）")
+    lines, created_chars, created_scenes = _convert_free_text(sub.freeText, project, apply=apply)
+    if apply:
+        sub.lines = [SCRIPT_LINE_ADAPTER.validate_python({"id": uuid.uuid4().hex, **l}) for l in lines]
+        sub.mode = "standard"
+        _save(project)
+    prompt = (FREE_TO_STANDARD_PROMPT
+              .replace("{characters}", ", ".join(f"{c.name}={c.id}" for c in project.characters) or "（无）")
+              .replace("{scenes}", ", ".join(f"{s.name}={s.id}" for s in project.scenes) or "（无）")
+              .replace("{free_text}", sub.freeText[:4000]))
+    return {
+        "lines": lines,
+        "createdCharacters": created_chars,
+        "createdScenes": created_scenes,
+        "applied": apply,
+        "mode": sub.mode,
+        "promptTemplate": prompt,
+    }
+
+
 # ---------- 标准写作行 ----------
 
 class LineIn(BaseModel):
@@ -349,15 +661,27 @@ class LineIn(BaseModel):
     text: Optional[str] = None
     sceneId: Optional[str] = None
     sceneName: Optional[str] = None
+    # 仅新建行使用：插入到该行 id 之后（编辑器 Enter 续行；缺省追加末尾）
+    afterId: Optional[str] = None
+
+
+def _insert_line(lines: list, line, after_id: Optional[str]) -> None:
+    """把新行插入到 after_id 行之后；after_id 不存在或为空则追加末尾。"""
+    if after_id:
+        idx = next((i for i, l in enumerate(lines) if l.id == after_id), -1)
+        if idx >= 0:
+            lines.insert(idx + 1, line)
+            return
+    lines.append(line)
 
 
 @router.post("/subchapters/{sid}/lines", status_code=201)
 def add_line(project_id: str, sid: str, body: LineIn):
     project = _load(project_id)
     _chapter, sub = _find_subchapter(project, sid)
-    data = {"id": uuid.uuid4().hex, **body.model_dump(exclude_none=True)}
+    data = {"id": uuid.uuid4().hex, **body.model_dump(exclude_none=True, exclude={"afterId"})}
     line = SCRIPT_LINE_ADAPTER.validate_python(data)
-    sub.lines.append(line)
+    _insert_line(sub.lines, line, body.afterId)
     _save(project)
     return line
 
@@ -369,7 +693,7 @@ def update_line(project_id: str, sid: str, lid: str, body: LineIn):
     line = next((l for l in sub.lines if l.id == lid), None)
     if line is None:
         raise HTTPException(404, f"行不存在: {lid}")
-    for k, v in body.model_dump(exclude_none=True).items():
+    for k, v in body.model_dump(exclude_none=True, exclude={"afterId"}).items():
         setattr(line, k, v)
     _save(project)
     return line
@@ -450,9 +774,9 @@ def add_fragment_line(project_id: str, sid: str, fid: str, body: LineIn):
     frag = next((f for f in sub.fragments if f.id == fid), None)
     if frag is None:
         raise HTTPException(404, f"子片段不存在: {fid}")
-    data = {"id": uuid.uuid4().hex, **body.model_dump(exclude_none=True)}
+    data = {"id": uuid.uuid4().hex, **body.model_dump(exclude_none=True, exclude={"afterId"})}
     line = SCRIPT_LINE_ADAPTER.validate_python(data)
-    frag.lines.append(line)
+    _insert_line(frag.lines, line, body.afterId)
     _save(project)
     return line
 
@@ -467,7 +791,7 @@ def update_fragment_line(project_id: str, sid: str, fid: str, lid: str, body: Li
     line = next((l for l in frag.lines if l.id == lid), None)
     if line is None:
         raise HTTPException(404, f"行不存在: {lid}")
-    for k, v in body.model_dump(exclude_none=True).items():
+    for k, v in body.model_dump(exclude_none=True, exclude={"afterId"}).items():
         setattr(line, k, v)
     _save(project)
     return line
@@ -591,12 +915,84 @@ def delete_foreshadow(project_id: str, fid: str):
 
 @router.get("/search")
 def search(project_id: str, q: str = ""):
-    """全局模糊搜索：匹配章节名、剧情概要、浓缩、对白/旁白文本、子片段文本、伏笔内容。"""
+    """全局模糊搜索：匹配章节名、剧情概要、浓缩、对白/旁白文本、子片段文本、伏笔内容，
+    以及世界观、角色设定（name/note/baseSetting）、场景（name/note）。
+    返回结果带 scope：chapter（可跳转章节）/ worldview / character / scene / foreshadow。"""
     project = _load(project_id)
     query = q.strip().lower()
     results = []
     if not query:
         return results
+
+    # 世界观
+    if query in project.worldview.lower():
+        results.append({
+            "scope": "worldview",
+            "subChapterId": None,
+            "chapterName": "世界观",
+            "subChapterName": "整体世界观",
+            "date": "",
+            "fragmentId": None,
+            "hits": [f"世界观: {project.worldview[:60]}"],
+        })
+
+    # 角色
+    for c in project.characters:
+        hits = []
+        if query in c.name.lower():
+            hits.append(f"角色名: {c.name}")
+        if c.note and query in c.note.lower():
+            hits.append(f"备注: {c.note[:60]}")
+        if c.baseSetting and query in c.baseSetting.lower():
+            hits.append(f"设定: {c.baseSetting[:60]}")
+        if hits:
+            results.append({
+                "scope": "character",
+                "subChapterId": None,
+                "chapterName": "角色",
+                "subChapterName": c.name,
+                "date": "",
+                "fragmentId": None,
+                "hits": hits[:5],
+            })
+
+    # 场景
+    for sc in project.scenes:
+        hits = []
+        if query in sc.name.lower():
+            hits.append(f"场景名: {sc.name}")
+        if sc.note and query in sc.note.lower():
+            hits.append(f"场景说明: {sc.note[:60]}")
+        if hits:
+            results.append({
+                "scope": "scene",
+                "subChapterId": None,
+                "chapterName": "场景",
+                "subChapterName": sc.name,
+                "date": "",
+                "fragmentId": None,
+                "hits": hits[:5],
+            })
+
+    # 伏笔
+    for f in project.foreshadows:
+        hits = []
+        if query in f.content.lower():
+            hits.append(f"伏笔: {f.content[:60]}")
+        if f.resolutionNote and query in f.resolutionNote.lower():
+            hits.append(f"回收说明: {f.resolutionNote[:60]}")
+        if hits:
+            results.append({
+                "scope": "foreshadow",
+                "subChapterId": f.plantedAt.subChapterId if f.plantedAt else None,
+                "chapterName": "伏笔",
+                "subChapterName": f.content[:20],
+                "date": "",
+                "fragmentId": None,
+                "hits": hits[:5],
+            })
+
+    # 章节正文
     for chapter in project.chapters:
         for sub in chapter.subChapters:
             hits = []
@@ -623,6 +1019,7 @@ def search(project_id: str, q: str = ""):
                             fragment_id = frag.id
             if hits:
                 results.append({
+                    "scope": "chapter",
                     "subChapterId": sub.id,
                     "chapterName": chapter.name,
                     "subChapterName": sub.name,
